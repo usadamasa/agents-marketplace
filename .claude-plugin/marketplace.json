@@ -1,11 +1,11 @@
 {
-  "name": "agents-marketplace",
+  "name": "usadamasa",
   "owner": {
     "name": "usadamasa",
     "email": "usadamasa@users.noreply.github.com"
   },
   "metadata": {
-    "description": "usadamasa's Claude Code plugins for running coding agents: daemons, hooks and skills"
+    "description": "usadamasa's Claude Code plugins: daemons, hooks and skills for running coding agents and writing in Japanese"
   },
   "plugins": [
     {
@@ -33,6 +33,32 @@
         "auto-retry",
         "compact",
         "herdr"
+      ]
+    },
+    {
+      "name": "japanese-writer",
+      "source": {
+        "source": "github",
+        "repo": "usadamasa/japanese-writer"
+      },
+      "description": "Skills, a proofreader subagent and a Stop hook for writing and proofreading Japanese technical documents",
+      "author": {
+        "name": "usadamasa"
+      },
+      "repository": "https://github.com/usadamasa/japanese-writer",
+      "license": "MIT",
+      "keywords": [
+        "japanese",
+        "writing",
+        "proofreading",
+        "textlint"
+      ],
+      "category": "productivity",
+      "tags": [
+        "japanese",
+        "writing",
+        "proofreading",
+        "textlint"
       ]
     }
   ]
