@@ -3,13 +3,14 @@
 usadamasa の Claude Code plugin marketplace｡コーディングエージェントの運用に使う daemon・hook・skill と、
 日本語の執筆・校正の skill 群を plugin として配る｡plugin の実体はそれぞれのリポジトリにあり、
 ここは `.claude-plugin/marketplace.json` で所在を宣言するだけ｡
+marketplace 名は `usadamasa` で、リポジトリ名 (`agents-marketplace`) とは違う｡
 
 ## 使い方
 
 ```sh
 claude plugin marketplace add usadamasa/agents-marketplace
-claude plugin install agents-daemon@agents-marketplace
-claude plugin install japanese-writer@agents-marketplace
+claude plugin install agents-daemon@usadamasa
+claude plugin install japanese-writer@usadamasa
 ```
 
 settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlugins` に書く｡宣言だけでは
@@ -18,14 +19,14 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 ```json
 {
   "extraKnownMarketplaces": {
-    "agents-marketplace": {
+    "usadamasa": {
       "source": { "source": "github", "repo": "usadamasa/agents-marketplace" },
       "autoUpdate": true
     }
   },
   "enabledPlugins": {
-    "agents-daemon@agents-marketplace": true,
-    "japanese-writer@agents-marketplace": true
+    "agents-daemon@usadamasa": true,
+    "japanese-writer@usadamasa": true
   }
 }
 ```
