@@ -1,0 +1,39 @@
+{
+  "name": "agents-marketplace",
+  "owner": {
+    "name": "usadamasa",
+    "email": "usadamasa@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "usadamasa's Claude Code plugins for running coding agents: daemons, hooks and skills"
+  },
+  "plugins": [
+    {
+      "name": "agents-daemon",
+      "source": {
+        "source": "github",
+        "repo": "usadamasa/agents-daemon"
+      },
+      "description": "Resident daemon that resumes Claude Code sessions after usage limits and drives compact-prep/compact via herdr panes",
+      "author": {
+        "name": "usadamasa"
+      },
+      "repository": "https://github.com/usadamasa/agents-daemon",
+      "license": "MIT",
+      "keywords": [
+        "claude-code",
+        "daemon",
+        "herdr",
+        "rate-limit",
+        "compact"
+      ],
+      "category": "productivity",
+      "tags": [
+        "daemon",
+        "auto-retry",
+        "compact",
+        "herdr"
+      ]
+    }
+  ]
+}
