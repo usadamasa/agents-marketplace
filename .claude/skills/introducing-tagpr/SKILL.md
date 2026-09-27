@@ -55,19 +55,20 @@ tagpr がリリース PR を作ること・`version` を手で上げないこと
 
 1〜4 は workflow を main へ merge する前に済ませる｡
 どれも Claude のセッションからは打たない｡tag の push は外へ出る操作､secret は guard が止める｡
+コマンドはユーザーがプロンプトに `! <command>` と打って実行する形で渡す (出力がそのまま会話に載る)｡
 
 1. GitHub App `usadamasa-tagpr` を対象リポジトリにインストールする:
    <https://github.com/settings/installations/101558454> の Repository access に足す｡
 2. Variable を登録する:
-   `gh variable set TAGPR_CLIENT_ID --repo <owner>/<name> --body Iv23liqxSJK4kOrLJFj4`
-3. Secret を登録する (手元のターミナルで打つ):
-   `op read "op://Personal/usadamasa-tagpr/private key" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
+   `! gh variable set TAGPR_CLIENT_ID --repo <owner>/<name> --body Iv23liqxSJK4kOrLJFj4`
+3. Secret を登録する:
+   `! op read "op://Personal/usadamasa-tagpr/private key" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
 4. 起点の tag を打つ｡plugin.json の現在の版と同じ名前 (v 無し) を､その版が入った main の commit に付ける｡
    - commit を探す｡出力の最後の行が､その版を入れた commit になる:
      `git -C <repo> log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
    - 何も出ないときは plugin.json の `"version":` の後の空白を確かめ､`-S` の文字列をファイルに合わせる｡
      HEAD へ付けて済ませない｡
-   - `git -C <repo> tag <版> <commit>` → `git -C <repo> push origin <版>`
+   - `! git -C <repo> tag <版> <commit>` → `! git -C <repo> push origin <版>`
    - tag が 1 本も無いと tagpr は `v0.0.0` を起点にし､plugin.json の中の `0.0.0` を探すため版が更新されない｡
 5. ファイルを置いた変更を PR にして merge する｡
 6. 最初のリリース PR で確かめる｡
