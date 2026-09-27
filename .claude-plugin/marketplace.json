@@ -5,7 +5,7 @@
     "email": "usadamasa@users.noreply.github.com"
   },
   "metadata": {
-    "description": "usadamasa's Claude Code plugins: daemons, hooks and skills for running coding agents and writing in Japanese"
+    "description": "usadamasa's Claude Code plugins: daemons, hooks and skills for running coding agents, writing in Japanese and measuring Go architecture"
   },
   "plugins": [
     {
@@ -59,6 +59,34 @@
         "writing",
         "proofreading",
         "textlint"
+      ]
+    },
+    {
+      "name": "go-arch-metrics",
+      "source": {
+        "source": "github",
+        "repo": "usadamasa/go-arch-metrics"
+      },
+      "description": "Measure and improve Go project modularity and testability with go-arch-lint, golangci-lint, spm-go and two purpose-built CLIs",
+      "author": {
+        "name": "usadamasa"
+      },
+      "repository": "https://github.com/usadamasa/go-arch-metrics",
+      "license": "MIT",
+      "keywords": [
+        "go",
+        "architecture",
+        "metrics",
+        "lint"
+      ],
+      "category": "development",
+      "tags": [
+        "go",
+        "golang",
+        "architecture",
+        "modularity",
+        "testability",
+        "static-analysis"
       ]
     }
   ]
