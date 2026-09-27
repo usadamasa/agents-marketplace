@@ -16,7 +16,10 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 対象は `.claude-plugin/plugin.json` の `version` が calver (`YYYY.MMDD.NN`) のリポジトリ｡
 版の付け方そのものは packaging-claude-plugins skill の担当｡
 
-引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は `gh repo view` で得る｡
+引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は plugin.json の `repository` から取る｡
+
+作業は最初から `<repo>` を cwd にしたセッションの worktree で行う｡cwd が `<repo>` と別のリポジトリなら､
+ファイルを置く前に herdr-operations skill に従って `<repo>` を cwd にしたセッションへ丸ごと渡す｡
 
 ## 1. 前提を確かめる
 
@@ -35,31 +38,36 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 | `tagpr.yaml` | `<repo>/.github/workflows/tagpr.yaml` |
 | `release.yml` | `<repo>/.github/release.yml` (既にあれば `exclude.labels` に `tagpr` を足すだけにする) |
 
-action の固定は pinact に従う｡`<repo>/.pinact.yaml` があれば､`<repo>` で `pinact run` を打つ｡
+action の固定は pinact に従う｡`.pinact.yaml` があれば `pinact run` を打つ｡
+
+AGENTS.md / CLAUDE.md / README に tag を手で打つリリース手順があれば､
+tagpr がリリース PR を作ること・`version` を手で上げないことの 2 行に置き換える｡手順を細かく書き直さない｡
 
 ## 3. 手作業を一覧で渡す
 
 `<owner>/<name>` と版を埋めて､次の一覧をユーザーへ渡す｡
 
-1〜4 は workflow を main へ merge する前に済ませる｡
+1〜3 は workflow を main へ merge する前に済ませる｡
 どれも Claude のセッションからは打たない｡tag の push は外へ出る操作､secret は guard が止める｡
+コマンドはユーザーがプロンプトに `! <command>` と打って実行する形で渡す (出力がそのまま会話に載る)｡
 
-1. GitHub App `usadamasa-tagpr` を対象リポジトリにインストールする:
-   <https://github.com/settings/installations/101558454> の Repository access に足す｡
-2. Variable を登録する:
-   `gh variable set TAGPR_CLIENT_ID --repo <owner>/<name> --body Iv23liqxSJK4kOrLJFj4`
-3. Secret を登録する (手元のターミナルで打つ):
-   `op read "op://Personal/usadamasa-tagpr/private key" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
-4. 起点の tag を打つ｡plugin.json の現在の版と同じ名前 (v 無し) を､その版が入った main の commit に付ける｡
+GitHub App `usadamasa-tagpr` (<https://github.com/settings/installations/101558454>) はユーザーの全リポジトリに
+インストール済みなので､確認も案内もしない｡
+
+1. Variable を登録する:
+   `! gh variable set TAGPR_CLIENT_ID --repo <owner>/<name> --body Iv23liqxSJK4kOrLJFj4`
+2. Secret を登録する:
+   `! op read "op://Personal/usadamasa-tagpr/private key" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
+3. 起点の tag を打つ｡plugin.json の現在の版と同じ名前 (v 無し) を､その版が入った main の commit に付ける｡
    - commit を探す｡出力の最後の行が､その版を入れた commit になる:
-     `git -C <repo> log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
+     `git log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
    - 何も出ないときは plugin.json の `"version":` の後の空白を確かめ､`-S` の文字列をファイルに合わせる｡
      HEAD へ付けて済ませない｡
-   - `git -C <repo> tag <版> <commit>` → `git -C <repo> push origin <版>`
+   - `! git tag <版> <commit>` → `! git push origin <版>`
    - tag が 1 本も無いと tagpr は `v0.0.0` を起点にし､plugin.json の中の `0.0.0` を探すため版が更新されない｡
-5. ファイルを置いた変更を PR にして merge する｡
-6. 最初のリリース PR で確かめる｡
-   - 本文の `base_tag` が手順 4 の tag になっている
+4. ファイルを置いた変更を PR にして merge する｡
+5. 最初のリリース PR で確かめる｡
+   - 本文の `base_tag` が手順 3 の tag になっている
    - 提案の版が `YYYY.0M0D.N` の形 (例: `2026.0927.0`)
    - 変わるファイルが `.claude-plugin/plugin.json` と `CHANGELOG.md` だけ
 
