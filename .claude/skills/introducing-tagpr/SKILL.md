@@ -18,9 +18,9 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 
 引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は plugin.json の `repository` から取る｡
 
-`<repo>` が cwd と別のリポジトリでも 2 まではこのセッションで進む (Write は他リポジトリへ届く)｡
-3 の branch・commit・push・PR は `git -C <repo>` が hook に止まるので､herdr-operations skill に従って
-`<repo>` を cwd にしたセッションへ渡す｡
+作業は最初から `<repo>` を cwd にしたセッションの worktree で行う｡cwd が `<repo>` と別のリポジトリなら､
+ファイルを置く前に herdr-operations skill に従って `<repo>` を cwd にしたセッションへ丸ごと渡す
+(`git -C <repo>` の書き込みは hook が止め､pinact も cwd の `.pinact.yaml` を読む)｡
 
 ## 1. 前提を確かめる
 
@@ -39,14 +39,9 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 | `tagpr.yaml` | `<repo>/.github/workflows/tagpr.yaml` |
 | `release.yml` | `<repo>/.github/release.yml` (既にあれば `exclude.labels` に `tagpr` を足すだけにする) |
 
-action の固定は pinact に従う｡`<repo>/.pinact.yaml` があれば pinact を打つ｡
-`<repo>` が cwd と違うときは `cd` も env の前置きも pinact を sandbox へ落とすので､aqua 経由で 1 文にする:
+action の固定は pinact に従う｡`.pinact.yaml` があれば `pinact run` を打つ｡
 
-```sh
-aqua -c <repo>/aqua.yaml exec -- pinact run -c <repo>/.pinact.yaml <repo>/.github/workflows/tagpr.yaml
-```
-
-`<repo>` の AGENTS.md / CLAUDE.md / README に tag を手で打つリリース手順があれば､
+AGENTS.md / CLAUDE.md / README に tag を手で打つリリース手順があれば､
 tagpr がリリース PR を作ること・`version` を手で上げないことの 2 行に置き換える｡手順を細かく書き直さない｡
 
 ## 3. 手作業を一覧で渡す
@@ -66,10 +61,10 @@ GitHub App `usadamasa-tagpr` (<https://github.com/settings/installations/1015584
    `! op read "op://Personal/usadamasa-tagpr/private key" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
 3. 起点の tag を打つ｡plugin.json の現在の版と同じ名前 (v 無し) を､その版が入った main の commit に付ける｡
    - commit を探す｡出力の最後の行が､その版を入れた commit になる:
-     `git -C <repo> log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
+     `git log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
    - 何も出ないときは plugin.json の `"version":` の後の空白を確かめ､`-S` の文字列をファイルに合わせる｡
      HEAD へ付けて済ませない｡
-   - `! git -C <repo> tag <版> <commit>` → `! git -C <repo> push origin <版>`
+   - `! git tag <版> <commit>` → `! git push origin <版>`
    - tag が 1 本も無いと tagpr は `v0.0.0` を起点にし､plugin.json の中の `0.0.0` を探すため版が更新されない｡
 4. ファイルを置いた変更を PR にして merge する｡
 5. 最初のリリース PR で確かめる｡
