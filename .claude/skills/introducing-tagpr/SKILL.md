@@ -19,8 +19,7 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は plugin.json の `repository` から取る｡
 
 作業は最初から `<repo>` を cwd にしたセッションの worktree で行う｡cwd が `<repo>` と別のリポジトリなら､
-ファイルを置く前に herdr-operations skill に従って `<repo>` を cwd にしたセッションへ丸ごと渡す
-(`git -C <repo>` の書き込みは hook が止め､pinact も cwd の `.pinact.yaml` を読む)｡
+ファイルを置く前に herdr-operations skill に従って `<repo>` を cwd にしたセッションへ丸ごと渡す｡
 
 ## 1. 前提を確かめる
 
