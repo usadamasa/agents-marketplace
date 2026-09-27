@@ -6,6 +6,7 @@ description: >-
   tagpr を入れたのにリリース PR の plugin.json が更新されない､base_tag が v0.0.0 になる､
   版が 2026.0927.00 のようにゼロ埋めされない､feature PR が version 検査の CI で落ち続ける､
   といった症状にも引く｡
+argument-hint: <対象リポジトリの絶対パス>
 ---
 
 # introducing-tagpr
@@ -45,7 +46,8 @@ pinact の `min_age` が公開 7 日未満の版を弾くため､最新版へ�
 - plugin.json の `version` を書き換えるスクリプトや task
 - PR で「版を上げたか」を検査する CI job
 
-見つけたものは消す｡残すと､版を上げない feature PR が落ち続ける｡
+見つけたものは `git -C <repo> rm <path>` で消す｡残すと､版を上げない feature PR が落ち続ける｡
+
 その job が branch protection の required status checks に入っていれば､外す作業を手順 4 の一覧の 5 の前に足す｡
 
 以後 plugin.json の `version` は手で上げない｡tagpr は最新 tag の版の文字列を plugin.json から探して置き換えるので､
@@ -67,6 +69,8 @@ pinact の `min_age` が公開 7 日未満の版を弾くため､最新版へ�
 4. 起点の tag を打つ｡plugin.json の現在の版と同じ名前 (v 無し) を､その版が入った main の commit に付ける｡
    - commit を探す｡出力の最後の行が､その版を入れた commit になる:
      `git -C <repo> log --format='%H %s' -S'"version": "<版>"' origin/main -- .claude-plugin/plugin.json`
+   - 何も出ないときは plugin.json の `"version":` の後の空白を確かめ､`-S` の文字列をファイルに合わせる｡
+     HEAD へ付けて済ませない｡
    - `git -C <repo> tag <版> <commit>` → `git -C <repo> push origin <版>`
    - tag が 1 本も無いと tagpr は `v0.0.0` を起点にし､plugin.json の中の `0.0.0` を探すため版が更新されない｡
 5. ファイルを置いた変更を PR にして merge する｡
