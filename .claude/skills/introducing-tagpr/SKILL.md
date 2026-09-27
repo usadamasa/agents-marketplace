@@ -16,7 +16,11 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 対象は `.claude-plugin/plugin.json` の `version` が calver (`YYYY.MMDD.NN`) のリポジトリ｡
 版の付け方そのものは packaging-claude-plugins skill の担当｡
 
-引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は `gh repo view` で得る｡
+引数は対象リポジトリの絶対パス｡以下 `<repo>` と書き､`<owner>/<name>` は plugin.json の `repository` から取る｡
+
+`<repo>` が cwd と別のリポジトリでも 2 まではこのセッションで進む (Write は他リポジトリへ届く)｡
+3 の branch・commit・push・PR は `git -C <repo>` が hook に止まるので､herdr-operations skill に従って
+`<repo>` を cwd にしたセッションへ渡す｡
 
 ## 1. 前提を確かめる
 
@@ -35,7 +39,15 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 | `tagpr.yaml` | `<repo>/.github/workflows/tagpr.yaml` |
 | `release.yml` | `<repo>/.github/release.yml` (既にあれば `exclude.labels` に `tagpr` を足すだけにする) |
 
-action の固定は pinact に従う｡`<repo>/.pinact.yaml` があれば､`<repo>` で `pinact run` を打つ｡
+action の固定は pinact に従う｡`<repo>/.pinact.yaml` があれば pinact を打つ｡
+`<repo>` が cwd と違うときは `cd` も env の前置きも pinact を sandbox へ落とすので､aqua 経由で 1 文にする:
+
+```sh
+aqua -c <repo>/aqua.yaml exec -- pinact run -c <repo>/.pinact.yaml <repo>/.github/workflows/tagpr.yaml
+```
+
+`<repo>` の AGENTS.md / CLAUDE.md / README に tag を手で打つリリース手順があれば､
+tagpr がリリース PR を作ること・`version` を手で上げないことの 2 行に置き換える｡手順を細かく書き直さない｡
 
 ## 3. 手作業を一覧で渡す
 
