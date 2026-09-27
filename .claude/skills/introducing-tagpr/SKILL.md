@@ -23,6 +23,7 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 - `<repo>/.claude-plugin/plugin.json` の `version` が `YYYY.MMDD.NN` の形になっている｡
   無い・形が違うときは導入を止めてユーザーへ上げる (tagpr の置き換え先の文字列が無い)｡
 - `<repo>/.tagpr` と `<repo>/.github/workflows/tagpr.yaml` がまだ無い｡あれば差分をユーザーに見せて判断を仰ぐ｡
+- 版を手で上げるスクリプトや､版を上げたかを検査する CI があれば､扱いをユーザーに問い合わせる｡
 
 ## 2. ファイルを置く
 
@@ -34,26 +35,9 @@ Claude Code plugin のリポジトリへ tagpr のファイルを置き､ファ
 | `tagpr.yaml` | `<repo>/.github/workflows/tagpr.yaml` |
 | `release.yml` | `<repo>/.github/release.yml` (既にあれば `exclude.labels` に `tagpr` を足すだけにする) |
 
-`<repo>/.pinact.yaml` があれば､`<repo>` で `pinact run` を打って action を SHA に固定する｡
+action の固定は pinact に従う｡`<repo>/.pinact.yaml` があれば､`<repo>` で `pinact run` を打つ｡
 
-template の action は版のタグで書いてある｡`Songmu/tagpr@v1` のような major タグへ緩めない｡
-pinact の `min_age` が公開 7 日未満の版を弾くため､最新版へ寄せると pin に失敗する｡
-
-## 3. 手動 bump の仕組みを消す
-
-`<repo>` で `rg -n 'version' .github/workflows scripts Taskfile.yml` を引き､次のものを探す｡
-
-- plugin.json の `version` を書き換えるスクリプトや task
-- PR で「版を上げたか」を検査する CI job
-
-見つけたものは `git -C <repo> rm <path>` で消す｡残すと､版を上げない feature PR が落ち続ける｡
-
-その job が branch protection の required status checks に入っていれば､外す作業を手順 4 の一覧の 5 の前に足す｡
-
-以後 plugin.json の `version` は手で上げない｡tagpr は最新 tag の版の文字列を plugin.json から探して置き換えるので､
-手で上げると見つからずに更新されない｡
-
-## 4. 手作業を一覧で渡す
+## 3. 手作業を一覧で渡す
 
 `<owner>/<name>` と版を埋めて､次の一覧をユーザーへ渡す｡
 
