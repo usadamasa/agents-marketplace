@@ -70,7 +70,6 @@ semver (`1.2.0`) や v 付き (`v0.0.17`) の tag を打っても､tag が無�
 | `release.yml` | `<repo>/.github/release.yml` (既にあれば `exclude.labels` に `tagpr` を足すだけにする) |
 
 action の固定は `using-gh-actions-lock` skill に従う。`actions.lock` があれば `gh actions-lock` で lockfile を更新する。
-移行前で `.pinact.yaml` が残るリポジトリだけ `pinact run` を打つ。
 
 AGENTS.md / CLAUDE.md / README に tag を手で打つリリース手順があれば､
 tagpr がリリース PR を作ること・`version` を手で上げないことの 2 行に置き換える｡手順を細かく書き直さない｡
