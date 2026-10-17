@@ -14,7 +14,7 @@
         "source": "github",
         "repo": "usadamasa/agents-daemon"
       },
-      "description": "Resident daemon that resumes Claude Code sessions after usage limits and drives compact-prep/compact via herdr panes",
+      "description": "Resident daemon beside Claude Code sessions that does what a session cannot do from inside: resume stopped sessions, aggregate state across sessions, clean up on a clock, operate rex blocks",
       "author": {
         "name": "usadamasa"
       },
@@ -23,16 +23,14 @@
       "keywords": [
         "claude-code",
         "daemon",
-        "herdr",
         "rate-limit",
-        "compact"
+        "rex"
       ],
       "category": "productivity",
       "tags": [
         "daemon",
         "auto-retry",
-        "compact",
-        "herdr"
+        "rex"
       ]
     },
     {

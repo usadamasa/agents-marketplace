@@ -35,7 +35,7 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 
 | plugin | リポジトリ | 役目 |
 | ---- | ---- | ---- |
-| `agents-daemon` | [usadamasa/agents-daemon](https://github.com/usadamasa/agents-daemon) | 利用上限からの自動再開と compact の投入 |
+| `agents-daemon` | [usadamasa/agents-daemon](https://github.com/usadamasa/agents-daemon) | Claude Code のセッションのそばに常駐し、セッションの中からはできないこと (止まったセッションの再開、セッションを跨いだ状態の集約、時間で動く掃除、rex の block 操作) を背後で担う |
 | `japanese-writer` | [usadamasa/japanese-writer](https://github.com/usadamasa/japanese-writer) | 日本語の技術文書の執筆と校正 |
 | `go-arch-metrics` | [usadamasa/go-arch-metrics](https://github.com/usadamasa/go-arch-metrics) | Go のアーキテクチャメトリクスの測定と改善 |
 
