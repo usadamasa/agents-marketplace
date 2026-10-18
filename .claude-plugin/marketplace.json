@@ -65,7 +65,7 @@
         "source": "github",
         "repo": "usadamasa/go-arch-metrics"
       },
-      "description": "Measure and improve Go project modularity and testability with go-arch-lint, golangci-lint, spm-go and two purpose-built CLIs",
+      "description": "Measure and improve Go project modularity and testability with go-arch-lint, golangci-lint and two purpose-built CLIs",
       "author": {
         "name": "usadamasa"
       },
