@@ -1,0 +1,11 @@
+version: 2
+updates:
+  # group は作らず、action ごとに PR を出させる。group の PR が開いたままだと
+  # 同じ group の更新が全部止まり、1 つの更新の不具合で他の更新まで巻き添えになる。
+  #
+  # Dependabot は `uses:` のタグと actions.lock の SHA を同じ commit で上げるので、
+  # CI の actions-lock ジョブ (`gh actions-lock --verify`) を通る。
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
