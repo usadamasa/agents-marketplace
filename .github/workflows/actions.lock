@@ -6,6 +6,7 @@ workflows:
     '.github/workflows/validate.yml':
         - 'actions/checkout@v7.0.1'
         - 'actions/setup-node@v7.1.0'
+        - 'usadamasa/gh-manage@main'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
@@ -17,3 +18,8 @@ dependencies:
         commit: 'sha1-949feb2413d6458794dcd2491c4babbbce0c15c1'
         owner_id: 44036562
         repo_id: 189476904
+    'usadamasa/gh-manage@main':
+        ref: 'main'
+        commit: 'sha1-e14bcdd4429a5a58d3957e8fdee8499a179c8fec'
+        owner_id: 513226
+        repo_id: 1390013800
