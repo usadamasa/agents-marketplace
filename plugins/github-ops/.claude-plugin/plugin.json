@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "github-ops",
-  "version": "2026.1115.1",
+  "version": "2026.1115.2",
   "description": "Skills for GitHub issues, Projects, Actions CI and local repository operations",
   "author": {
     "name": "usadamasa"

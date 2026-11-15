@@ -1,0 +1,16 @@
+{
+  "description": "セッションの開始時に repo-scan を plugin の data ディレクトリへ建てる (ソースが変わったときだけ)",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_DATA=\"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}/scripts/build-repo-scan.sh\" --if-stale",
+            "timeout": 300
+          }
+        ]
+      }
+    ]
+  }
+}
