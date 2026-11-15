@@ -42,3 +42,15 @@ jobs:
         with:
           persist-credentials: false
       - uses: usadamasa/gh-manage/actions/verify-actions-lock@main
+
+  # Branch Ruleset の required status check にはこのジョブだけを登録する
+  ci-status-check:
+    needs:
+      - actions-lock
+      - validate
+    if: always()
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: exit 1
