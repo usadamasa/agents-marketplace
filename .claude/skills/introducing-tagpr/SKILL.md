@@ -80,19 +80,17 @@ tagpr がリリース PR を作ること・`version` を手で上げないこと
 
 `<owner>/<name>` とバージョンを埋めて、次の一覧をユーザーへ渡す。
 
-1〜3 は workflow を main へ merge する前に済ませる。
-どれも Claude のセッションからは打たない。tag の push は外へ出る操作、secret は guard が止める。
+1〜2 は workflow を main へ merge する前に済ませる。
+tag の push は外へ出る操作なので、Claude のセッションからは打たない。
 コマンドはユーザーがプロンプトに `! <command>` と打って実行する形で渡す (出力がそのまま会話に載る)。
 
-tagpr 用の GitHub App は、利用者の全リポジトリにインストール済みの前提で進める。
-App の client-id と、private key を置いた 1Password の参照 (`op://<vault>/<item>/<field>`) は、
-利用者のグローバル CLAUDE.md の「tagpr」節から読む。節が無ければユーザーに尋ねる。
-
-1. Variable を登録する:
-   `! gh variable set TAGPR_CLIENT_ID --repo <owner>/<name> --body <client-id>`
-2. Secret を登録する:
-   `! op read "<private key の参照>" | gh secret set TAGPR_PRIVATE_KEY -R <owner>/<name>`
-3. 起点の tag を打つ。plugin.json の現在のバージョンと同じ名前 (v 無し) を、そのバージョンが入った main の commit に付ける。
+1. tagpr 用の GitHub App が `<owner>/<name>` にインストールされているかをユーザーに確かめる。
+   入っていなければ、App のインストール設定で対象のリポジトリに足してもらう。
+   `TAGPR_CLIENT_ID` (variable) と `TAGPR_PRIVATE_KEY` (secret) は、
+   gh-manage の [settings/base.yaml](https://github.com/usadamasa/gh-manage/blob/main/settings/base.yaml) が
+   管理下の全リポジトリへ配るので、リポジトリへ個別に登録しない。
+   `<owner>/<name>` が gh-manage の管理下になければ、先に管理下へ加えるかをユーザーに問い合わせる。
+2. 起点の tag を打つ。plugin.json の現在のバージョンと同じ名前 (v 無し) を、そのバージョンが入った main の commit に付ける。
    手順 2 を通ったなら、その PR が入った commit になる。
    - commit を探す。出力の最後の行が、そのバージョンを入れた commit になる:
      `git log --format='%H %s' -S'"version": "<バージョン>"' origin/main -- .claude-plugin/plugin.json`
@@ -100,10 +98,10 @@ App の client-id と、private key を置いた 1Password の参照 (`op://<vau
      HEAD へ付けて済ませない。
    - `! git tag <バージョン> <commit>` → `! git push origin <バージョン>`
    - calver の書式に合わない tag は無視される (手順 1)。tag の名前が `YYYY.0M0D.MICRO` の形か打つ前に見直す。
-4. ファイルを置いた変更を PR にして merge する。
-5. 最初のリリース PR で確かめる。
-   - 本文の `base_tag` が 3 の tag になっている
-   - branch が `tagpr-from-<3 の tag>` になっている (`tagpr-from-0.0.0` なら下の「起点の tag が無視されたとき」へ)
+3. ファイルを置いた変更を PR にして merge する。
+4. 最初のリリース PR で確かめる。
+   - 本文の `base_tag` が 2 の tag になっている
+   - branch が `tagpr-from-<2 の tag>` になっている (`tagpr-from-0.0.0` なら下の「起点の tag が無視されたとき」へ)
    - 提案のバージョンが `YYYY.0M0D.MICRO` の形 (例: `2026.0927.0`)
    - 変わるファイルが、`versionFile` に並べたファイル全部と `CHANGELOG.md`
 
