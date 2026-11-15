@@ -13,7 +13,7 @@ description: >-
 ## version を毎回上げる
 
 `plugins/<name>/` 配下を 1 文字でも変えた PR では、その plugin の `plugin.json` の `version` を同じ PR で上げる。
-`version` が変わらないと、`claude plugin update` も自動更新も install 済みのコピーを置き換えない。
+`version` が変わらないと、`claude plugin update` と自動更新のどちらでも、install 済みのコピーは置き換わらない。
 skill の本文・references・scripts・`plugin.json` の description のどれを変えても同じ。
 
 - 形式は calver の `YYYY.0M0D.MICRO`。月日は 0 埋めし、MICRO は 0 埋めしない (例 `2026.1115.0`)。
@@ -28,9 +28,12 @@ skill の本文・references・scripts・`plugin.json` の description のどれ
    private marketplace に残す。個人の情報 (1Password の vault や item の名前、メールアドレス、端末のパス) は
    一般化してから移す。
 2. `plugins/<name>/skills/<skill>/` に置く。`~/.claude/skills/<skill>` を直書きしたパスは `${CLAUDE_SKILL_DIR}` へ替える。
-3. 同じ plugin の skill や agent を呼ぶ箇所は `<plugin>:<name>` で書く (bare 名だと `~/.claude/skills/` の旧コピーに当たる)。
-4. 上の「version を毎回上げる」に従って `version` を上げる。
-5. 移した元 (agents-config) の参照の書き換えと旧コピーの削除は、agents-config 側の PR で行う。
+3. 同じ plugin の skill や agent を呼ぶ箇所は `<plugin>:<name>` で書く。bare 名で呼ぶと、plugin の外に同名の skill が無ければ
+   plugin 側に当たるが、plugin の外に同名の skill があるとそちらに当たる (project の skill で確認)。
+4. plugin の skill は、他の plugin を前提にせず、特定の環境にしか無い hook も前提にしない。
+   前提にしていた中身が要るなら、1〜2 行で本文に持たせる。
+5. 上の「version を毎回上げる」に従って `version` を上げる。
+6. 移した元 (agents-config) の参照の書き換えと旧コピーの削除は、agents-config 側の PR で行う。
 
 ## plugin を足すとき
 
