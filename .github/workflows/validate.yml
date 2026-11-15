@@ -43,10 +43,25 @@ jobs:
           persist-credentials: false
       - uses: usadamasa/gh-manage/actions/verify-actions-lock@main
 
+  # plugin に同梱した Go の CLI (github-ops の repo-scan) とビルドの script のテスト
+  go-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: plugins/github-ops/go.mod
+          cache-dependency-path: plugins/github-ops/go.sum
+      - run: go -C plugins/github-ops vet ./...
+      - run: go -C plugins/github-ops test ./...
+
   # Branch Ruleset の required status check にはこのジョブだけを登録する
   ci-status-check:
     needs:
       - actions-lock
+      - go-test
       - validate
     if: always()
     runs-on: ubuntu-slim
