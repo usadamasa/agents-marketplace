@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "toolchain",
+  "version": "2026.1115.0",
+  "description": "Skills for placing development tools: Nix devShell, home-manager, PATH and direnv",
+  "author": {
+    "name": "usadamasa"
+  },
+  "repository": "https://github.com/usadamasa/agents-marketplace",
+  "license": "MIT"
+}

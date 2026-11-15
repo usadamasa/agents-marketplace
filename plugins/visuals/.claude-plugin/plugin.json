@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "visuals",
+  "version": "2026.1115.0",
+  "description": "Skills for diagrams, images and PDFs: Mermaid, Typst, PDF extraction, screen capture and showing images",
+  "author": {
+    "name": "usadamasa"
+  },
+  "repository": "https://github.com/usadamasa/agents-marketplace",
+  "license": "MIT"
+}

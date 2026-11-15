@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "shellscript",
+  "version": "2026.1115.0",
+  "description": "Skills for writing hardened bash scripts and testing them with bats-core",
+  "author": {
+    "name": "usadamasa"
+  },
+  "repository": "https://github.com/usadamasa/agents-marketplace",
+  "license": "MIT"
+}

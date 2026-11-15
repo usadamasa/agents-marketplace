@@ -86,6 +86,54 @@
         "testability",
         "static-analysis"
       ]
+    },
+    {
+      "name": "dev-workflow",
+      "source": "./plugins/dev-workflow",
+      "description": "Skills for the development loop: TDD, debugging, verification, code review, finishing a branch and dispatching subagents",
+      "category": "development"
+    },
+    {
+      "name": "shellscript",
+      "source": "./plugins/shellscript",
+      "description": "Skills for writing hardened bash scripts and testing them with bats-core",
+      "category": "development"
+    },
+    {
+      "name": "toolchain",
+      "source": "./plugins/toolchain",
+      "description": "Skills for placing development tools: Nix devShell, home-manager, PATH and direnv",
+      "category": "development"
+    },
+    {
+      "name": "github-ops",
+      "source": "./plugins/github-ops",
+      "description": "Skills for GitHub issues, Projects, Actions CI and local repository operations",
+      "category": "development"
+    },
+    {
+      "name": "harness",
+      "source": "./plugins/harness",
+      "description": "Skills for operating the Claude Code harness itself: writing skills, permissions, sandbox and token usage",
+      "category": "productivity"
+    },
+    {
+      "name": "visuals",
+      "source": "./plugins/visuals",
+      "description": "Skills for diagrams, images and PDFs: Mermaid, Typst, PDF extraction, screen capture and showing images",
+      "category": "productivity"
+    },
+    {
+      "name": "misc",
+      "source": "./plugins/misc",
+      "description": "Skills that fit no other plugin: Obsidian vault and 1Password CLI",
+      "category": "productivity"
+    },
+    {
+      "name": "leadership",
+      "source": "./plugins/leadership",
+      "description": "Skills for practicing leadership across organizational boundaries",
+      "category": "productivity"
     }
   ]
 }
