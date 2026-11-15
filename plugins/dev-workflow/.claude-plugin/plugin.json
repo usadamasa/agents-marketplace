@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "dev-workflow",
+  "version": "2026.1115.0",
+  "description": "Skills for the development loop: TDD, debugging, verification, code review, finishing a branch and dispatching subagents",
+  "author": {
+    "name": "usadamasa"
+  },
+  "repository": "https://github.com/usadamasa/agents-marketplace",
+  "license": "MIT"
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "harness",
+  "version": "2026.1115.0",
+  "description": "Skills for operating the Claude Code harness itself: writing skills, permissions, sandbox and token usage",
+  "author": {
+    "name": "usadamasa"
+  },
+  "repository": "https://github.com/usadamasa/agents-marketplace",
+  "license": "MIT"
+}

@@ -40,6 +40,9 @@ Claude Code を更新して挙動が記載と食い違ったら､末尾の「�
 - `version` は semver として検査されない｡0 埋めの calver も `claude plugin validate --strict` を通る (2.1.283 で確認)｡
 - `version` を書くと､利用者はその値が変わるまで同じ版に留まる｡配りたい変更を入れるたびに `version` を上げる｡
 - marketplace.json のエントリにも `version` を書けるが､plugin.json の値が優先される｡plugin.json だけに書く｡
+- `version` を書かないと `claude plugin validate --strict` が警告で落ちる｡
+- この marketplace の `plugins/<name>/` に置く plugin は､変更する PR で手で上げる｡
+  手順は maintaining-in-repo-plugins skill の担当｡
 
 ## 変数の置換
 
@@ -92,8 +95,10 @@ Claude Code を更新して挙動が記載と食い違ったら､末尾の「�
 
 ## リポジトリの構成
 
-marketplace は [usadamasa/agents-marketplace](https://github.com/usadamasa/agents-marketplace) に集約し､
-plugin はそれぞれ専用のリポジトリに置く｡plugin のリポジトリに marketplace.json は置かない｡
+marketplace は [usadamasa/agents-marketplace](https://github.com/usadamasa/agents-marketplace) に集約する｡
+plugin は専用のリポジトリか､marketplace の `plugins/<name>/` に置く｡
+専用のリポジトリに marketplace.json は置かない｡`plugins/<name>/` の plugin は `"source": "./plugins/<name>"` で宣言する｡
+以下は専用リポジトリの構成｡
 
 ```text
 <plugin-repo>/
