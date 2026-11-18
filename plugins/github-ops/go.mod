@@ -1,6 +1,8 @@
 module github.com/usadamasa/agents-marketplace/plugins/github-ops
 
-go 1.24.0
+// net/http と cgo のビルド時の脆弱性は go1.27.4 で修正された。go 行を下限にして、
+// build-repo-scan.sh による利用者の手元のビルドも修正版に限る
+go 1.27.4
 
 require github.com/spf13/cobra v1.10.2
 
