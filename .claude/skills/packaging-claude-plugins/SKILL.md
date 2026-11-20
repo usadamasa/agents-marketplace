@@ -52,7 +52,7 @@ Claude Code を更新して挙動が記載と食い違ったら、末尾の「�
 | `${CLAUDE_PLUGIN_DATA}` | 置換される | (未確認) |
 
 - agent から自 plugin の references を指すときは `${CLAUDE_PLUGIN_ROOT}/skills/<skill>/references/...` と書く。
-- `${CLAUDE_PLUGIN_DATA}` の値は `~/.claude/plugins/data/<marketplace>-<plugin>/`。
+- `${CLAUDE_PLUGIN_DATA}` の値は `~/.claude/plugins/data/<plugin>-<marketplace>/` (例 `github-ops-usadamasa`)。
 - 置換は Claude が読むテキストに対して行われるだけで、Bash の環境変数としては export されない。
   本文に `"${CLAUDE_PLUGIN_ROOT}/scripts/foo.sh"` と書けば、実パスに置き換わって Claude に見える。
   一方で、Claude が組み立てた ad-hoc なコマンドの中で `$CLAUDE_PLUGIN_ROOT` を展開させても空になる。
