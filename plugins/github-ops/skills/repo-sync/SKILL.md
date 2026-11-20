@@ -19,9 +19,10 @@ repo-scan が sandbox の外で動く設定が要る。設定の形は github-op
 
 ## repo-scan の打ち方
 
-- `${CLAUDE_PLUGIN_DATA}/bin/repo-scan` は置換された絶対パスのまま、クォートせずに打つ
+- repo-scan は `~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan` の字面のまま、クォートせずに打つ。
+  `~` を絶対パスや `$HOME` に替えない
 - 1 回の Bash 呼び出しに repo-scan の 1 文だけを書く。パイプ、リダイレクト、`cd` や変数の前置き、`$(...)` を付けない
-- 付けると sandbox の外で動く設定に当たらず、sandbox の中で git の書き込みが落ちる
+- 字面を変えたり前置きを付けたりすると sandbox の外で動く設定に当たらず、sandbox の中で git の書き込みが落ちる
 
 ## repo-scan が守る安全ルール
 
@@ -34,11 +35,11 @@ repo-scan が sandbox の外で動く設定が要る。設定の形は github-op
 ## repo-scan を確かめる
 
 repo-scan は、github-ops の SessionStart hook がソースの変わったときだけ
-`${CLAUDE_PLUGIN_DATA}/bin/repo-scan` へビルドする。
+`~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan` へビルドする。
 始める前にバイナリがあるかを見る。
 
 ```bash
-test -x ${CLAUDE_PLUGIN_DATA}/bin/repo-scan
+test -x ~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan
 ```
 
 無ければ (exit 1) ここで止め、git を直接打つ手順で代わりに進めない。
@@ -62,7 +63,7 @@ Step 4 の `sync` に ghq のリポジトリ名 (`name`・`owner/name`・`host/o
 ### Step 1: 同期プランを取得
 
 ```bash
-${CLAUDE_PLUGIN_DATA}/bin/repo-scan
+~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan
 ```
 
 既定は ghq 配下の全リポジトリが対象になる。特定の owner だけに絞るときは
@@ -90,7 +91,7 @@ Step 1 と同じ `--owner` を付けて打つ。全件の同期は fetch を対�
 Bash の timeout を 600000 (10 分) にする。途中で打ち切られると、退避した stash が戻らずに残りうる。
 
 ```bash
-${CLAUDE_PLUGIN_DATA}/bin/repo-scan sync
+~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan sync
 ```
 
 1 本に絞るときは `sync <repo>` と打つ。`<repo>` は scan の対象でなくてよい。
@@ -140,7 +141,7 @@ ${CLAUDE_PLUGIN_DATA}/bin/repo-scan sync
 1. 変更 path を取得する。
 
    ```bash
-   ${CLAUDE_PLUGIN_DATA}/bin/repo-scan changed --range <old>..<new> <path>
+   ~/.claude/plugins/data/github-ops-usadamasa/bin/repo-scan changed --range <old>..<new> <path>
    ```
 
 2. subagent (Explore か general-purpose) に委譲する。渡す情報:
