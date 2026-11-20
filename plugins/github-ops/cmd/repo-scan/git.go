@@ -1,21 +1,35 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 )
 
-// git は dir で git コマンドを実行し、trim 済み stdout を返す。読み取り専用の用途のみ。
+// gitCmd は dir を作業ディレクトリにした git の *exec.Cmd を返す。
+// 対象は -C ではなく作業ディレクトリで渡す。認証の入力を待って止まらないよう、端末からの入力は切る。
+func gitCmd(dir string, args ...string) *exec.Cmd {
+	cmd := exec.Command("git", args...) // #nosec G204 -- args は本パッケージ内の固定サブコマンドだけ
+	cmd.Dir = dir
+	cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+	return cmd
+}
+
+// git は dir で git コマンドを実行し、trim 済み stdout を返す。
 func git(dir string, args ...string) (string, error) {
-	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...) // #nosec G204 -- args は本パッケージ内の固定サブコマンドだけ
-	out, err := cmd.Output()
+	out, err := gitCmd(dir, args...).Output()
+	return strings.TrimSpace(string(out)), err
+}
+
+// gitRun は dir で git コマンドを実行し、trim 済みの stdout と stderr をまとめて返す。失敗の理由を報告に載せる用途。
+func gitRun(dir string, args ...string) (string, error) {
+	out, err := gitCmd(dir, args...).CombinedOutput()
 	return strings.TrimSpace(string(out)), err
 }
 
 // gitOK は git コマンドの成否 (exit 0 か) だけを返す。
 func gitOK(dir string, args ...string) bool {
-	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...) // #nosec G204 -- args は本パッケージ内の固定サブコマンドだけ
-	return cmd.Run() == nil
+	return gitCmd(dir, args...).Run() == nil
 }
 
 // ghqListPaths は `ghq list -p` の出力をパスのスライスで返す。
