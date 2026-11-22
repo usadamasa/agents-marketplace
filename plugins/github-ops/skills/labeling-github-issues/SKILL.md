@@ -27,11 +27,12 @@ issue と PR を次の軸のラベルで分け、PR のラベルから release n
 
 ## repo 固有の決めごとを読む
 
-area の表と廃止した機能の列挙は repo ごとに違う。repo の `.claude/skills/*/SKILL.md` か `AGENTS.md` に
-area の表があれば、それに従う。無ければ「ラベル運用を入れる」の手順 1 で決める。
+area の表と廃止した機能の列挙は repo ごとに違う。repo の `.claude/skills/*/SKILL.md`、`AGENTS.md`、
+`CLAUDE.md`、`.claude/CLAUDE.md` のどれかに area の表があれば、それに従う。
+無ければ「ラベル運用を入れる」の手順 1 で決める。
 
 ```sh
-git grep -l 'area: ' -- AGENTS.md '.claude/skills/*/SKILL.md'
+git grep -l 'area: ' -- AGENTS.md CLAUDE.md .claude/CLAUDE.md '.claude/skills/*/SKILL.md'
 ```
 
 何も出なければ (exit 1) area の表はまだ無い。
@@ -54,7 +55,7 @@ area が無い closed issue のうち、廃止した機能のものはそのま�
 | `bug` | 今ある振る舞いが期待と違う。誤検知、取り違え、落ちる、競合 |
 | `enhancement` | 新しい機能か、使い勝手と性能の改善 (結果は同じで、呼び出しや待ちを減らすものを含む) |
 | `refactor` | 振る舞いを変えない整理。パッケージ構成、重複の除去、lint の違反、廃止した機能の撤去 |
-| `documentation` | docs、skill、AGENTS.md だけを変える |
+| `documentation` | docs、skill、AGENTS.md、CLAUDE.md だけを変える |
 | `investigation` | 結論を issue のコメントに残して閉じ、実装は別の issue に切るもの。検討、triage、前提の裏取り |
 
 ### 3. area を決める
@@ -116,7 +117,8 @@ CI・lint・テスト・保守用の docs は `area: dev` にまとめる。
 README と実装のどちらにも残っていない機能は廃止した機能として扱い、area を作らない。
 area の表は「area」と「含むもの」の列で作り、案を利用者に見せて合意を取る。
 
-決めた area の表と廃止した機能の列挙は、repo の `AGENTS.md` か `.claude/skills/<name>/SKILL.md` に置く。
+決めた area の表と廃止した機能の列挙は、repo の `AGENTS.md`、`CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/skills/<name>/SKILL.md` のどれかに置く。
+指示ファイルを `AGENTS.md`・`CLAUDE.md`・`.claude/CLAUDE.md` のうち 1 つだけ持つ repo では、その 1 つに置く。
 この skill の「issue にラベルを付ける」の手順 3 が、そこを読む。
 
 ### 2. ラベルを宣言する
@@ -178,7 +180,7 @@ fork と dependabot の PR は token に書き込み権限が無いので対象�
 
 ### 6. PR の決めごとを repo に書く
 
-repo の `AGENTS.md` に次の行を置く。
+repo の `AGENTS.md` (無ければ `CLAUDE.md` か `.claude/CLAUDE.md` のある方) に次の行を置く。
 
 ```markdown
 - 本文に、閉じる issue を `Closes #N` で 1 行ずつ書く。pr-labels workflow が issue の種類と area のラベルを PR へ写す。
