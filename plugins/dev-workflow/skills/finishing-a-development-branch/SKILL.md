@@ -15,8 +15,8 @@ base ブランチは、この作業が分岐した元のブランチになる。
 
 ## 2. base に追いつく
 
-作業中に別のセッションのマージで base が進んでいることがある。CI は branch と base を merge した commit で
-走るので、古い base の上で通したテストは CI での結果を保証しない。テストの前に base を取り込む。
+作業中に別のセッションのマージで base が進んでいることがある。CI は branch と base を merge した commit でテストを
+実行するので、古い base の上で通したテストは CI での結果を保証しない。テストの前に base を取り込む。
 
 ```bash
 git fetch origin <base-branch>
@@ -36,10 +36,16 @@ push 済みなら merge で取り込む。競合したら解消し、解消の�
 ## 3. テストを確かめる
 
 プロジェクトのテスト一式 (`npm test` / `cargo test` / `pytest` / `go test ./...`) と lint を、これから push する
-ツリーで走らせる。手順 2 で取り込んだなら、取り込む前に通した結果は使わず走らせ直す。
+ツリーで実行する。手順 2 で取り込んだなら、取り込む前に通した結果は使わず実行し直す。
 落ちたら失敗を報告して止まる。PR を作るのはテストが通ってから。
 
-## 4. commit をまとめて PR を作る
+## 4. やり残しの扱いを決める
+
+PR を作る前に、やり残しを挙げる。やり残しは、直していない箇所、確かめていない挙動、決めていない判断を指す。
+挙げた件は 1 件ずつ扱いを決め、PR の先へ持ち越す件を無くす。扱いの決めごとが利用者の指示にあれば従う。
+ここでツリーを変えたら、手順 3 のテストと lint を実行し直す。
+
+## 5. commit をまとめて PR を作る
 
 upstream が無い (未 push) なら、push の前に commit を 1 つにまとめる。手順 2 を通した後なので、
 `origin/<base-branch>` は HEAD の祖先になっている。
@@ -52,19 +58,19 @@ git push -u origin <feature-branch>
 
 commit message は変更の全体を表すものにする。まとめないのは、変更が大きく commit ごとに読む必要がある PR だけで、
 迷ったらまとめる。upstream が既にある (push 済み) なら、まとめると force push が要るので、そのまま push し、
-まとめるのは手順 5 に回す。
+まとめるのは手順 6 に回す。
 
-続けて、<base-branch> に向けた PR を `gh pr create` で作る。リポジトリに PR のテンプレートや決めごとがあれば
-従う。ユーザーへの報告は PR の URL、検証結果、残した課題で組む。
+続けて、`<base-branch>` に向けた PR を `gh pr create` で作る。本文は「変更」と「検証」で組む。
+リポジトリに PR のテンプレートや決めごとがあれば従う。ユーザーへの報告は PR の URL、変更、検証結果で組む。
 
 push が拒否されたら、原因 (リモートが進んでいる、保護ブランチ、権限) を調べる。force push はユーザーが
 はっきり求めたときだけ。
 
-push の後に `gh pr edit` で本文を直すと、`edited` でも走る CI が push の run を取り消す。`gh pr checks` は
+push の後に `gh pr edit` で本文を直すと、`edited` でも起動する CI が push の run を取り消す。`gh pr checks` は
 取り消された job を fail と出すので、報告の前に `gh run list --branch <feature-branch>` で最新の run の
 conclusion を見る。
 
-## 5. PR をマージする
+## 6. PR をマージする
 
 マージはユーザーが指示したときだけ行う。それまでに PR へ届いたフィードバックは、今の worktree で直す。
 
@@ -83,9 +89,9 @@ conclusion を見る。
    | ---- | ---- |
    | 変更が大きく、commit ごとに読ませるためにまとめていない PR | 書き換えない。未 push の commit があれば push する |
    | exit 0、count が 1、rev-parse の 2 行が同じ | 書き換えない。CI で通った commit がそのままマージされる |
-   | それ以外 (base が進んだ、PR の後に commit が増えた、PR の前に push 済みでまとめていない) | 手順 2 (push 済みなので merge)、手順 3 を通し、手順 4 と同じ `git reset --soft origin/<base-branch>` と `git commit` でまとめ、`git push --force-with-lease` する |
+   | それ以外 (base が進んだ、PR の後に commit が増えた、PR の前に push 済みでまとめていない) | 手順 2 (push 済みなので merge)、手順 3 を通し、手順 5 と同じ `git reset --soft origin/<base-branch>` と `git commit` でまとめ、`git push --force-with-lease` する |
 
-   この force push はマージの指示に含まれるので、改めて確かめない。CI の待ち方は 5 で決める。
+   この force push はマージの指示に含まれるので、改めて確かめない。CI の待ち方は手順 6 の 5 で決める。
 2. cwd が worktree なら `ExitWorktree` の `remove` で抜ける。未マージのコミットを理由に拒否されたら、
    push 済みであることを確かめて `discard_changes: true` で抜ける。自分のセッションの worktree を
    `git worktree remove` で手で消さない (セッションがその worktree を追い続け、ロックが残る)。
@@ -127,5 +133,5 @@ conclusion を見る。
    PR を Draft に戻すと auto-merge は外れる。auto-merge が待つのは必須チェックだけで、必須でないチェックが
    落ちてもマージは止まらない。
 
-手順 5 の 4 を飛ばして、ほかの PR が base にしているブランチを消すと、GitHub はその PR を retarget せずに閉じる。
+手順 6 の 4 を飛ばして、ほかの PR が base にしているブランチを消すと、GitHub はその PR を retarget せずに閉じる。
 閉じた PR は base を変えられず、reopen もできない (cli/cli#14223、platform 側の bug で未修正)。
