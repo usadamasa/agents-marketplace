@@ -50,12 +50,26 @@ Claude Code を更新して挙動が記載と食い違ったら、末尾の「�
 | `${CLAUDE_PLUGIN_ROOT}` | 置換される | 置換される |
 | `${CLAUDE_SKILL_DIR}` | 置換される | **置換されず字面のまま残る** |
 | `${CLAUDE_PLUGIN_DATA}` | 置換される | (未確認) |
+| `${user_config.KEY}` | 置換される。未設定なら `default` があっても字面のまま残る。`sensitive` の値はプレースホルダになる | (未確認) |
 
 - agent から自 plugin の references を指すときは `${CLAUDE_PLUGIN_ROOT}/skills/<skill>/references/...` と書く。
 - `${CLAUDE_PLUGIN_DATA}` の値は `~/.claude/plugins/data/<plugin>-<marketplace>/` (例 `github-ops-usadamasa`)。
 - 置換は Claude が読むテキストに対して行われるだけで、Bash の環境変数としては export されない。
   本文に `"${CLAUDE_PLUGIN_ROOT}/scripts/foo.sh"` と書けば、実パスに置き換わって Claude に見える。
   一方で、Claude が組み立てた ad-hoc なコマンドの中で `$CLAUDE_PLUGIN_ROOT` を展開させても空になる。
+- `${user_config.KEY}` は shell 形式の hook の `command` では参照できず、hook がエラーで起動しない。
+  hook へは exec 形式の `args` で渡すか、hook の中で環境変数 `CLAUDE_PLUGIN_OPTION_<KEY>` を読む。
+
+## 利用者の値を受ける
+
+利用者ごとに違う値は、`plugin.json` の `userConfig` で口を宣言し、skill の本文は `${user_config.KEY}` で読む。
+利用者の CLAUDE.md の見出しを名指しで読まない。口にするのは型のある値 (リポジトリ名、真偽値) だけにし、
+判断の文 (どの課題をどこへ起票するか) は skill の本文に置く。
+
+- 値は user settings の `pluginConfigs."<plugin>@<marketplace>".options` に書く
+  (例 `pluginConfigs."github-ops@usadamasa".options.harness_repo`)。project と local の settings の値は読まれない。
+- skill は、字面の `${user_config.` が残っていることで未設定を見分け、利用者に値を聞く。
+  `default` は置換に使われず、宣言の無いキーの参照も `claude plugin validate` は落とさない (2.1.332 で確認)。
 
 ## 名前解決
 
