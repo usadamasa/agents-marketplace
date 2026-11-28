@@ -46,7 +46,6 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 | `harness` | [plugins/harness](plugins/harness) | Claude Code ハーネス自体の運用 (skill の書き方、permission、sandbox、token の使い方) |
 | `visuals` | [plugins/visuals](plugins/visuals) | 図・画像・PDF とその見せ方 |
 | `leadership` | [plugins/leadership](plugins/leadership) | 組織の壁を越えるリーダーシップの実践 |
-| `misc` | [plugins/misc](plugins/misc) | 他の plugin に入らないもの (Obsidian の Vault、1Password CLI) |
 
 ## plugin を足すとき
 
