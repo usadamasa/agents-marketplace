@@ -12,6 +12,8 @@ setup_file() {
 
 setup() {
   TEST_TMPDIR=$(mktemp -d "${TMPDIR:-/tmp}/claude-test.XXXXXX")
+  # TMPDIR の末尾の / で `//` が入ると、guard が整えて出すパスと字面で一致しないので、正規化する
+  TEST_TMPDIR=$(cd "$TEST_TMPDIR" && pwd -P)
   export TEST_TMPDIR
   # テスト用 HOME を設定
   export HOME="$TEST_TMPDIR/home"
