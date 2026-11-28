@@ -103,6 +103,28 @@ func containsDotDot(d string) bool {
 	return false
 }
 
+// writesConfig は、ファイルを書くツールが YAML の置き場 (YAML のあるディレクトリ) へ書くかを返す。
+// YAML がその置き場を許していても止める。Claude Code が自分で許可を広げられないようにするため。
+func writesConfig(toolName string, paths []string, cfgPath string) bool {
+	switch toolName {
+	case "Write", "Edit", "NotebookEdit":
+	default:
+		return false
+	}
+	dir := filepath.Dir(cfgPath)
+	for _, p := range paths {
+		if p == dir || strings.HasPrefix(p, dir+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+// configWriteReason は YAML の置き場への書き込みを止めた理由を返す。
+func configWriteReason(cfgPath string) string {
+	return fmt.Sprintf("ホームディレクトリ走査防止: %s はユーザーが手で編集するファイルです。Claude Code から書き換えることはできません。許す置き場を変えるなら、ユーザーに依頼してください。", cfgPath)
+}
+
 // denyReason は deniedPath を止めた理由と、YAML の置き場と書き方を返す。
 func denyReason(deniedPath string, cfg homeConfig) string {
 	head := fmt.Sprintf("ホームディレクトリ走査防止: %s は cwd と ~/.claude と許可した置き場の外にあるためアクセスできません。", deniedPath)
