@@ -95,7 +95,7 @@ actions-lock:
 - 拡張のバージョンは `--pin` で固定し、`gh extension list` で見たローカルのバージョンと揃える。
 - 自分のリポジトリが多いなら、install と検証のステップを共有の composite action にまとめて各リポジトリから `uses:` で呼べる。
   そのときは拡張のバージョンの固定を composite 側が持ち、`--relock` で各リポジトリの記録を進める。
-  勤務先など他者のリポジトリからは、個人の composite action を参照しない (個人のアカウント名がそのコードに残る)。
+  勤務先など他者のリポジトリからは、個人の composite action を `uses:` でもコメントでも参照しない (個人のアカウント名がそのコードに残る)。
 - `@main` で参照しても、`gh actions-lock` が lockfile に commit を記録し、ランナーがその commit で実行する。
   参照先の更新を取り込むときは `gh actions-lock --relock` で記録を進める。
 - lockfile そのものはランナーが実行時に検証する。CI の job が拾うのはその手前のずれで、
