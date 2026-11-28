@@ -124,12 +124,6 @@
       "category": "productivity"
     },
     {
-      "name": "misc",
-      "source": "./plugins/misc",
-      "description": "Skills that fit no other plugin: Obsidian vault and 1Password CLI",
-      "category": "productivity"
-    },
-    {
       "name": "leadership",
       "source": "./plugins/leadership",
       "description": "Skills for practicing leadership across organizational boundaries",
