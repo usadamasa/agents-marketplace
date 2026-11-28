@@ -263,8 +263,9 @@ write_config() {
   printf '%s' "$1" > "$(config_file)"
 }
 
+# deny_reason JSON は hook の出力から deny の理由を取り出す。
 deny_reason() {
-  printf '%s' "$output" | jq -r '.hookSpecificOutput.permissionDecisionReason'
+  printf '%s' "$1" | jq -r '.hookSpecificOutput.permissionDecisionReason'
 }
 
 @test "YAML が無い: cwd と ~/.claude だけを許し、deny で置き場と書き方を案内する" {
@@ -276,7 +277,7 @@ deny_reason() {
   [ "$status" -eq 0 ]
   [[ "$output" == *'"permissionDecision":"deny"'* ]]
   local reason
-  reason=$(deny_reason)
+  reason=$(deny_reason "$output")
   [[ "$reason" == *"$(config_file)"* ]]
   [[ "$reason" == *"allowed_home_directories:"* ]]
 }
@@ -288,7 +289,7 @@ deny_reason() {
   [ "$status" -eq 0 ]
   [[ "$output" == *'"permissionDecision":"deny"'* ]]
   local reason
-  reason=$(deny_reason)
+  reason=$(deny_reason "$output")
   [[ "$reason" == *"$(config_file)"* ]]
   [[ "$reason" == *"読めない"* ]]
 
@@ -315,7 +316,7 @@ deny_reason() {
   run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/Downloads/secret.pdf" /workspace)"
   [ "$status" -eq 0 ]
   [[ "$output" == *'"permissionDecision":"deny"'* ]]
-  [[ "$(deny_reason)" == *"$(config_file)"* ]]
+  [[ "$(deny_reason "$output")" == *"$(config_file)"* ]]
 }
 
 @test "XDG_CONFIG_HOME が無ければ ~/.config の下の YAML を読む" {
