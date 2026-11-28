@@ -249,3 +249,81 @@ make_bash_input() {
   [ "$status" -eq 0 ]
   [ -z "$output" ]
 }
+
+# =============================================================================
+# guard-home-dir.yaml: 無い・読めない・ある
+# =============================================================================
+
+config_file() {
+  printf '%s\n' "$XDG_CONFIG_HOME/claude-harness/guard-home-dir.yaml"
+}
+
+write_config() {
+  mkdir -p "$XDG_CONFIG_HOME/claude-harness"
+  printf '%s' "$1" > "$(config_file)"
+}
+
+deny_reason() {
+  printf '%s' "$output" | jq -r '.hookSpecificOutput.permissionDecisionReason'
+}
+
+@test "YAML が無い: cwd と ~/.claude だけを許し、deny で置き場と書き方を案内する" {
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/.claude/settings.json" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/src/project/main.go" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+  local reason
+  reason=$(deny_reason)
+  [[ "$reason" == *"$(config_file)"* ]]
+  [[ "$reason" == *"allowed_home_directories:"* ]]
+}
+
+@test "YAML を読めない: YAML の値を使わず、deny で読めないことと書き方を案内する" {
+  write_config $'allowed_home_directories:\n  - src\n  - /etc\n'
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/src/project/main.go" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+  local reason
+  reason=$(deny_reason)
+  [[ "$reason" == *"$(config_file)"* ]]
+  [[ "$reason" == *"読めない"* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/.claude/settings.json" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
+@test "YAML がある: 書いた置き場と cwd と ~/.claude を許し、それ以外のホーム配下を deny する" {
+  write_config $'allowed_home_directories:\n  - src\n  - workspace\n'
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/src/project/main.go" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  run "$BIN_PATH" <<< "$(make_bash_input "find $HOME/workspace -name '*.md'" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/.claude/settings.json" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/Downloads/secret.pdf" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+  [[ "$(deny_reason)" == *"$(config_file)"* ]]
+}
+
+@test "XDG_CONFIG_HOME が無ければ ~/.config の下の YAML を読む" {
+  unset XDG_CONFIG_HOME
+  mkdir -p "$HOME/.config/claude-harness"
+  printf 'allowed_home_directories:\n  - src\n' > "$HOME/.config/claude-harness/guard-home-dir.yaml"
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/src/project/main.go" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}

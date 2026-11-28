@@ -4,6 +4,7 @@ import (
 	"testing"
 )
 
+// YAML が無いときの判定。cwd と ~/.claude だけを許す。
 func TestCheckPaths(t *testing.T) {
 	home := "/Users/testuser"
 	cwd := "/Users/testuser/src/example/project"
@@ -72,7 +73,7 @@ func TestCheckPaths(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := checkPaths(tt.paths, home, cwd)
+			got := checkPaths(tt.paths, home, cwd, nil)
 			if tt.wantMsg == "" && got != "" {
 				t.Errorf("checkPaths(%v) = %q, want empty (通過)", tt.paths, got)
 			}
