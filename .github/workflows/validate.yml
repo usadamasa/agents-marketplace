@@ -107,7 +107,7 @@ jobs:
       - run: go -C "plugins/${{ matrix.plugin }}" vet ./...
       - run: go -C "plugins/${{ matrix.plugin }}" test ./...
 
-  # visuals の show-image.sh は rex の block で macOS の /bin/bash (3.2) が動かす。
+  # visuals の show-image.sh と toolchain の direnv-env.sh は macOS の /bin/bash (3.2) で動く。
   # bash 4 以降の機能の混入を拾えるよう、macOS の runner で回す
   bats-test:
     needs:
@@ -123,8 +123,9 @@ jobs:
         with:
           persist-credentials: false
       # bats 本体は PATH の bash で動く。/bin/bash (3.2) のままだと日本語のテスト名を解決できないので、
-      # Homebrew の bash を入れる。show-image.sh はテストの中で /bin/bash を明示して動かす
-      - run: brew install bash bats-core
+      # Homebrew の bash を入れる。テストの対象のスクリプトはテストの中で /bin/bash を明示して動かす。
+      # toolchain の direnv-env.bats は本物の direnv を使う
+      - run: brew install bash bats-core direnv
       - run: bats "plugins/${{ matrix.plugin }}/tests"
 
   # Branch Ruleset の required status check にはこのジョブだけを登録する

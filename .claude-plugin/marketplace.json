@@ -102,7 +102,7 @@
     {
       "name": "toolchain",
       "source": "./plugins/toolchain",
-      "description": "Skills for placing development tools: Nix devShell, home-manager, PATH and direnv",
+      "description": "Skills and a direnv hook for placing development tools: Nix devShell, home-manager, PATH and direnv",
       "category": "development"
     },
     {
