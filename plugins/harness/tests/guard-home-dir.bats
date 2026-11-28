@@ -337,6 +337,34 @@ deny_reason() {
   [ -z "$output" ]
 }
 
+@test "YAML を symlink で置いても、リンク側とリンク先の両方のディレクトリへの書き込みを deny する" {
+  local origin="$HOME/src/config-repo/harness"
+  mkdir -p "$origin" "$XDG_CONFIG_HOME/claude-harness"
+  printf 'allowed_home_directories:\n  - src\n' > "$origin/guard-home-dir.yaml"
+  ln -s "$origin/guard-home-dir.yaml" "$(config_file)"
+
+  # YAML は symlink 越しに読める
+  run "$BIN_PATH" <<< "$(make_file_input Read "$HOME/src/project/main.go" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+
+  run "$BIN_PATH" <<< "$(make_file_input Edit "$(config_file)" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Write "$origin/guard-home-dir.yaml" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Write "$XDG_CONFIG_HOME/claude-harness/new.yaml" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Write "$HOME/src/config-repo/README.md" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
 @test "XDG_CONFIG_HOME が無ければ ~/.config の下の YAML を読む" {
   unset XDG_CONFIG_HOME
   mkdir -p "$HOME/.config/claude-harness"

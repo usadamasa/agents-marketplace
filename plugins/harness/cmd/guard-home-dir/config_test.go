@@ -225,10 +225,52 @@ func TestWritesConfig(t *testing.T) {
 	}
 }
 
+// YAML を別の置き場のファイルへの symlink で置いたときは、リンクのあるディレクトリと
+// リンク先のディレクトリの両方を書かせない。ツールのパスは symlink を解決してから渡る。
+func TestWritesConfig_Symlinked(t *testing.T) {
+	root, err := filepath.EvalSymlinks(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	targetDir := filepath.Join(root, "repo", "harness")
+	linkDir := filepath.Join(root, "home", ".config", "claude-harness")
+	for _, d := range []string{targetDir, linkDir, filepath.Join(root, "repo", "other")} {
+		if err := os.MkdirAll(d, 0o755); err != nil {
+			t.Fatal(err)
+		}
+	}
+	target := filepath.Join(targetDir, "guard-home-dir.yaml")
+	if err := os.WriteFile(target, []byte("allowed_home_directories: []\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	link := filepath.Join(linkDir, "guard-home-dir.yaml")
+	if err := os.Symlink(target, link); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{"リンクを指す Write (解決後はリンク先)", target, true},
+		{"リンク先のディレクトリの別のファイル", filepath.Join(targetDir, "other.yaml"), true},
+		{"リンクのあるディレクトリの新しいファイル", filepath.Join(linkDir, "new.yaml"), true},
+		{"リンク先と同じリポジトリの別のディレクトリ", filepath.Join(root, "repo", "other", "x.go"), false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := writesConfig("Write", []string{tt.path}, link); got != tt.want {
+				t.Errorf("writesConfig(%q) = %v, want %v", tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestConfigWriteReason(t *testing.T) {
 	const cfgPath = "/home/tester/.config/claude-harness/guard-home-dir.yaml"
 	r := configWriteReason(cfgPath)
-	for _, want := range []string{cfgPath, "ユーザー"} {
+	for _, want := range []string{cfgPath, "ユーザーが手で", "許す置き場"} {
 		if !strings.Contains(r, want) {
 			t.Errorf("reason = %q, want it to contain %q", r, want)
 		}
