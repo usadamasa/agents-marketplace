@@ -86,6 +86,7 @@ read-only の git は deny しない。
 | 出力を絞る | ツール自身のオプション (`--jq`、`-q`)。無ければ標準出力のまま読む。`gh api` にファイルへ書くフラグは無く、contents は `-H 'Accept: application/vnd.github.raw+json'`、ジョブのログは `gh run view <run> --job <id> --log`、PR の変更ファイルは `gh pr diff <n> --name-only` で取る |
 | `gh actions-lock` の結果を絞る | `--json=valid,findings` でフィールドを選ぶ。`--help` の例 (`--json 2>/dev/null \| jq .valid`) はリダイレクトとパイプで照合から外れる |
 | 本文や JSON を渡す | Write ツールでファイルに書いてフラグで渡す (`--body-file`、`-F`、`--input`、`--file`) |
+| PR / issue を締めのコメント付きで閉じる | `close` の `-c` はファイルを受けない。コメントを `comment <n> --body-file <file>` で先に投稿し、`-c` を付けずに `close` する |
 | 環境変数を渡す | 前置きを外す。要るなら Taskfile の `env:` に置く |
 | cwd と別のリポジトリ・worktree から読む | 対象を絶対パスで引数に渡す (`cd` は前置きできない)。`gh` は `--repo` で外で動く。`git` の read-only な verb は `-C <絶対パス>` で sandbox 内でも成立する |
 | cwd と別のリポジトリ・worktree へ書く | 書き込み系の git (`switch` `commit` `push` `restore` 等) は `-C` を付けた時点で sandbox 内に落ちる。別リポジトリならそれを cwd にした新セッションで実行し、同じリポジトリの別 worktree なら `EnterWorktree` で移ってから実行する。引数を取れない差分ベースの呼び出し (素の `crit` 等) も cwd のリポジトリを見るので同じ |
