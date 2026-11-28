@@ -108,7 +108,7 @@
     {
       "name": "github-ops",
       "source": "./plugins/github-ops",
-      "description": "Skills for GitHub issues, Projects, Actions CI and local repository operations",
+      "description": "Skills for GitHub issues, Actions CI and local repository operations",
       "category": "development"
     },
     {
