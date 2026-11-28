@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/usadamasa/agents-marketplace/main/plugins/harness/schemas/guard-home-dir.schema.json",
+  "title": "guard-home-dir.yaml",
+  "description": "harness plugin の guard-home-dir が、cwd と ~/.claude のほかに許すホーム配下の置き場。値が 1 つでも不正なら、guard は YAML 全体を読めないものとして扱う。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["allowed_home_directories"],
+  "properties": {
+    "allowed_home_directories": {
+      "description": "許すディレクトリ。ホームからの相対パスで書く。",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "not": {
+          "anyOf": [
+            {
+              "description": "/ か ~ で始まる値 (ホームからの相対パスではない)",
+              "pattern": "^[/~]"
+            },
+            {
+              "description": ".. の区間を含む値",
+              "pattern": "(^|/)\\.\\.(/|$)"
+            },
+            {
+              "description": "ホームそのものを指す値 (. や ./)",
+              "pattern": "^(\\./*)+$"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

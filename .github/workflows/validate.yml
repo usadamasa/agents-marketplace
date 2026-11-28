@@ -86,7 +86,7 @@ jobs:
           persist-credentials: false
       - uses: usadamasa/gh-manage/actions/verify-actions-lock@main
 
-  # plugin に同梱した Go の CLI (github-ops の repo-scan、visuals の cleanshot-capture、harness の analyze-tokens) とビルドの script のテスト
+  # plugin に同梱した Go の CLI (github-ops の repo-scan、visuals の cleanshot-capture、harness の analyze-tokens と guard) とビルドの script のテスト
   go-test:
     needs:
       - changes
@@ -103,7 +103,8 @@ jobs:
       - uses: actions/setup-go@v7.1.0
         with:
           go-version-file: plugins/${{ matrix.plugin }}/go.mod
-          cache-dependency-path: plugins/${{ matrix.plugin }}/go.sum
+          # 標準ライブラリだけの plugin には go.sum が無いので、go.mod も拾える glob にする
+          cache-dependency-path: plugins/${{ matrix.plugin }}/go.*
       - run: go -C "plugins/${{ matrix.plugin }}" vet ./...
       - run: go -C "plugins/${{ matrix.plugin }}" test ./...
 
@@ -126,6 +127,12 @@ jobs:
       # Homebrew の bash を入れる。テストの対象のスクリプトはテストの中で /bin/bash を明示して動かす。
       # toolchain の direnv-env.bats は本物の direnv を使う
       - run: brew install bash bats-core direnv
+      # harness の bats は、テストの中で Go のバイナリをビルドする
+      - if: hashFiles(format('plugins/{0}/go.mod', matrix.plugin)) != ''
+        uses: actions/setup-go@v7.1.0
+        with:
+          go-version-file: plugins/${{ matrix.plugin }}/go.mod
+          cache-dependency-path: plugins/${{ matrix.plugin }}/go.*
       - run: bats "plugins/${{ matrix.plugin }}/tests"
 
   # Branch Ruleset の required status check にはこのジョブだけを登録する
