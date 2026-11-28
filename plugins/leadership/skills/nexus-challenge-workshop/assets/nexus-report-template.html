@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>あなたのネクサス課題</title>
+<!--
+  ネクサス課題ワークシート (『組織の壁を越える』序章 図1.3)
+
+  編集するのは下部の <script id="nexus-data"> の JSON だけ。
+  HTML / CSS / 描画スクリプトには触らない。
+
+  JSON の書き方:
+    meta.title    レポート見出し。既定のままでよい
+    meta.owner    ワークをやった人。チームなら "○○チーム (4名)" など
+    meta.context  どの単位の課題か。"○○部 / 個人ワーク" など
+    meta.date     実施日 (YYYY-MM-DD)
+    headline      Step 3 の見出し。「いかに〜するか」形式、動詞入り、20〜40字。
+                  円の中心に入る
+    quadrants     Step 4 の4象限。summary は円の中に入るので 40字以内の1文。
+                  詳細は bullets に置く (円の下のカードに出る)。
+                  未記入の象限は summary を "" にする。省略しない
+    candidates    Step 1 で挙げた課題。selected:true が Step 2 で残ったもの
+    criteria      Step 2 の3基準。met は true / false / null (判断保留)
+    boundaries    Step 4 の「なぜ?」で挙がった境界。該当するキーだけ書く。
+                  キー: vertical / horizontal / stakeholder / demographic / geographic
+    practices     Step 5 で当たりをつけた実践。該当するキーだけ書く。
+                  キー: buffering / reflecting / connecting / mobilizing /
+                        weaving / transforming
+                  priority: "high" / "watch"
+    nextActions   次の一歩。horizon は "短期" か "長期"
+    notes         補足。空文字なら節ごと出ない
+-->
+<style>
+  :root {
+    --w: 820px;
+    --ring: 46px;
+    --ink: #14181f;
+    --line: #c9cfd8;
+    --muted: #5b6472;
+    --paper: #ffffff;
+    --bg: #f4f5f7;
+    --what: #1d4ed8;
+    --why: #b45309;
+    --how: #047857;
+    --whatif: #6d28d9;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+                 "Noto Sans JP", system-ui, sans-serif;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main { max-width: 980px; margin: 0 auto; }
+
+  header.sheet-head {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+  header.sheet-head h1 { font-size: 24px; margin: 0 0 4px; letter-spacing: .02em; }
+  header.sheet-head .source { color: var(--muted); font-size: 13px; margin: 0 0 14px; }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px 28px; font-size: 14px; }
+  .meta-row div span { color: var(--muted); margin-right: 8px; }
+
+  section.block {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  section.block > h2 {
+    font-size: 15px;
+    letter-spacing: .08em;
+    margin: 0 0 4px;
+  }
+  section.block > .lead { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+
+  /* --- ホイール --------------------------------------------------------- */
+  .wheel-wrap { overflow-x: auto; padding: 8px 0 4px; }
+  .wheel {
+    position: relative;
+    width: var(--w);
+    height: var(--w);
+    margin: 0 auto;
+    border: var(--ring) solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .axis-v, .axis-h { position: absolute; background: var(--line); }
+  .axis-v { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-.5px); }
+  .axis-h { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-.5px); }
+
+  .ring-label {
+    position: absolute;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    white-space: nowrap;
+    transform-origin: center;
+  }
+  /* 位置指定は border の内側 (内円) を基準にするため、リング中心線は 50% ± 37.6% */
+  .ring-label.what   { left: 87.6%; top: 12.4%; transform: translate(-50%, -50%) rotate(45deg); }
+  .ring-label.why    { left: 87.6%; top: 87.6%; transform: translate(-50%, -50%) rotate(-45deg); }
+  .ring-label.how    { left: 12.4%; top: 87.6%; transform: translate(-50%, -50%) rotate(45deg); }
+  .ring-label.whatif { left: 12.4%; top: 12.4%; transform: translate(-50%, -50%) rotate(-45deg); }
+
+  .quads {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    place-items: center;
+  }
+  /* % は grid セル (内円の 1/4) 基準。中央円とリングの両方を避ける幅にしてある */
+  .quad { width: 55%; text-align: center; }
+  .quad .q-name {
+    font-size: 12px;
+    letter-spacing: .1em;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .quad .q-text { font-size: 14px; line-height: 1.65; }
+  .quad .q-text.long { font-size: 13px; }
+  .quad .q-text.longer { font-size: 12px; line-height: 1.55; }
+  .quad .q-text.empty { color: #a8b0bb; font-style: italic; }
+  .quad.what   .q-name { color: var(--what); }
+  .quad.why    .q-name { color: var(--why); }
+  .quad.how    .q-name { color: var(--how); }
+  .quad.whatif .q-name { color: var(--whatif); }
+  /* grid の並び: 左上=もし〜なら? / 右上=何? / 左下=どのように? / 右下=なぜ? */
+
+  .hub {
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 30%; height: 30%;
+    transform: translate(-50%, -50%);
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+  }
+  .hub .hub-text { font-size: 15.5px; font-weight: 700; line-height: 1.5; }
+  .hub .hub-text.long { font-size: 14px; }
+  .hub .hub-text.longer { font-size: 12.5px; line-height: 1.45; }
+  .hub .hub-text.empty { color: #a8b0bb; font-weight: 400; font-style: italic; }
+
+  /* --- 象限の詳細カード -------------------------------------------------- */
+  .q-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .q-card {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 16px 18px;
+    border-top: 4px solid var(--line);
+  }
+  .q-card.what   { border-top-color: var(--what); }
+  .q-card.why    { border-top-color: var(--why); }
+  .q-card.how    { border-top-color: var(--how); }
+  .q-card.whatif { border-top-color: var(--whatif); }
+  .q-card h3 { font-size: 14px; margin: 0 0 2px; }
+  .q-card .q-ask { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+  .q-card p.q-sum { margin: 0 0 8px; font-size: 14px; }
+  .q-card ul { margin: 0; padding-left: 1.2em; font-size: 13.5px; }
+  .q-card li { margin-bottom: 4px; }
+  .q-card .empty { color: #a8b0bb; font-style: italic; font-size: 13px; }
+
+  /* --- 表・リスト -------------------------------------------------------- */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .06em; color: var(--muted); font-weight: 600; }
+  tr.off td { color: #9aa3af; }
+
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 1px 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .pill.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .pill.high { background: #fde68a; border-color: #f0c419; color: #6b4b00; }
+  .pill.watch { background: #e5edff; border-color: #b9ccff; color: #23408e; }
+  .pill.no { color: #9aa3af; }
+
+  ol.actions { margin: 0; padding-left: 1.3em; font-size: 14px; }
+  ol.actions li { margin-bottom: 8px; }
+  ol.actions .when { color: var(--muted); font-size: 12.5px; margin-left: 8px; }
+
+  .notes { font-size: 14px; white-space: pre-wrap; margin: 0; }
+
+  footer.sheet-foot {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  footer.sheet-foot a { color: var(--muted); }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    section.block, header.sheet-head { border-color: #ddd; break-inside: avoid; }
+    .wheel-wrap { break-inside: avoid; }
+    @page { size: A4 portrait; margin: 12mm; }
+    :root { --w: 640px; --ring: 36px; }
+  }
+</style>
+</head>
+<body>
+<main id="report"></main>
+
+<script id="nexus-data" type="application/json">
+{
+  "meta": {
+    "title": "あなたのネクサス課題",
+    "owner": "山田 太郎",
+    "context": "○○部 / 個人ワーク",
+    "date": "2026-08-23"
+  },
+  "headline": "いかに部門の壁を越えて、顧客の声をサービスの改善につなげるか",
+  "quadrants": {
+    "what": {
+      "summary": "顧客の声が部門ごとに分断され、サービスの改善に結びつかない。",
+      "bullets": [
+        "顧客窓口が受けた声が、改善の優先度づけに届く前に個別対応で終わる",
+        "同じ声に複数の部門が別々に対応し、対応の中身がそろわない"
+      ]
+    },
+    "why": {
+      "summary": "部門 A・B・C が別々の指標で動き、共通の顧客像を持てていない。",
+      "bullets": [
+        "水平の境界: 部門 A / 部門 B / 部門 C",
+        "垂直の境界: 部門長と現場リーダー (優先度の決裁が滞る)",
+        "ステークホルダーの境界: 顧客の窓口担当と、顧客側の決裁者"
+      ]
+    },
+    "how": {
+      "summary": "定例の共有会を作ったが、報告の場に留まり意思決定が動かなかった。",
+      "bullets": [
+        "有効だった: 顧客との面談に他部門も同席する。一次情報がそろうと議論が早い",
+        "有効でなかった: 週次の要望一覧の共有。読まれず、優先度が変わらない"
+      ]
+    },
+    "whatIf": {
+      "summary": "顧客起点で優先度が決まり、部門をまたぐ判断が現場で完結する。",
+      "bullets": [
+        "顧客の声を受けてから改善に着手するまでが、月単位から週単位になる",
+        "重複した対応が減り、空いた人手を新しい取り組みに回せる"
+      ]
+    }
+  },
+  "candidates": [
+    { "title": "顧客の声を部門をまたいでサービスの改善計画に反映する", "selected": true, "note": "部門をまたがないと成立しない" },
+    { "title": "部門内の作業手順を標準化する", "selected": false, "note": "部門の中で完結する" },
+    { "title": "新規顧客の立ち上がりを早める", "selected": true, "note": "部門 A と部門 C の協働が要る" },
+    { "title": "採用計画を前倒しする", "selected": false, "note": "境界の問題ではない" }
+  ],
+  "criteria": {
+    "crossBoundary": {
+      "met": true,
+      "note": "3 部門に共通の方向性と責任感を築かないと動かない"
+    },
+    "identity": {
+      "met": true,
+      "note": "「顧客との約束を守る部門」と「品質を守る部門」という自己認識のぶつかりが根にある"
+    },
+    "newApproach": {
+      "met": true,
+      "note": "個別調整で回してきたやり方が、顧客数の増加で限界に来ている"
+    }
+  },
+  "boundaries": {
+    "vertical": { "groups": "部門長 / 現場リーダー", "note": "優先度の決裁が中間で止まる" },
+    "horizontal": { "groups": "部門 A / 部門 B / 部門 C", "note": "指標が別で、共通の顧客像が無い" },
+    "stakeholder": { "groups": "顧客の窓口担当 / 顧客側の決裁者", "note": "要望の出どころと決裁者がずれている" }
+  },
+  "practices": {
+    "reflecting": { "priority": "high", "note": "まず互いの制約を可視化する。第5章から読む" },
+    "connecting": { "priority": "high", "note": "個人間の信頼が薄い。顧客との面談の同席を増やす" },
+    "weaving": { "priority": "watch", "note": "土台ができてから。指標の統合はこの段階" }
+  },
+  "nextActions": [
+    { "action": "3 部門のリーダーに、この見出しをそのままぶつけて反応を見る", "horizon": "短期", "when": "今週中" },
+    { "action": "第5章 (リフレクティング) を読み、互いの制約を出す場の設計案を書く", "horizon": "短期", "when": "2週間以内" },
+    { "action": "共通の顧客指標を1つ決め、3部門の目標に入れる", "horizon": "長期", "when": "次の半期計画" }
+  ],
+  "notes": ""
+}
+</script>
+
+<script>
+(function () {
+  const QUADS = [
+    { key: "whatIf", cls: "whatif", label: "もし〜なら?", ask: "もしこの課題を解決できたとしたら? どんな新しい可能性が生まれるか?" },
+    { key: "what",   cls: "what",   label: "何?",        ask: "課題は何か? それを表現する" },
+    { key: "how",    cls: "how",    label: "どのように?", ask: "この課題にどのように対応しようとしてきたか? 何が有効で、何が有効でないか?" },
+    { key: "why",    cls: "why",    label: "なぜ?",      ask: "なぜこれが課題なのか? 関係する境界や集団をリストアップする" }
+  ];
+
+  const BOUNDARIES = [
+    { key: "vertical",    name: "垂直",           desc: "階層、地位、年功、権限" },
+    { key: "horizontal",  name: "水平",           desc: "機能、部門、専門性" },
+    { key: "stakeholder", name: "ステークホルダー", desc: "組織の内と外 (顧客、パートナー)" },
+    { key: "demographic", name: "人口属性",        desc: "性別、世代、学歴、思想" },
+    { key: "geographic",  name: "地理",           desc: "距離、場所、文化、市場" }
+  ];
+
+  const CRITERIA = [
+    { key: "crossBoundary", label: "境界を越える必要がある", desc: "さまざまな集団のなかに方向性・団結力・責任感を築かないと前に進まない" },
+    { key: "identity",      label: "深い変革を必要とする",   desc: "システムや構造だけでなく、人間関係やアイデンティティの変革が要る" },
+    { key: "newApproach",   label: "新しいアプローチを必要とする", desc: "過去に機能したやり方がもう十分に役立たない" }
+  ];
+
+  const PRACTICES = [
+    { key: "buffering",    group: "境界のマネジメント",       name: "バッファリング",       outcome: "安全・安心を確保する", chapter: "第4章" },
+    { key: "reflecting",   group: "境界のマネジメント",       name: "リフレクティング",     outcome: "敬意を育む",         chapter: "第5章" },
+    { key: "connecting",   group: "共通の土台づくり",         name: "コネクティング",       outcome: "信頼を築く",         chapter: "第6章" },
+    { key: "mobilizing",   group: "共通の土台づくり",         name: "モビライジング",       outcome: "コミュニティをつくる", chapter: "第7章" },
+    { key: "weaving",      group: "新たなフロンティアの発見", name: "ウィービング",         outcome: "相互依存を高める",    chapter: "第8章" },
+    { key: "transforming", group: "新たなフロンティアの発見", name: "トランスフォーミング", outcome: "改革を可能にする",    chapter: "第9章" }
+  ];
+
+  const data = JSON.parse(document.getElementById("nexus-data").textContent);
+  const root = document.getElementById("report");
+
+  const el = (tag, cls, text) => {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  };
+  const has = (s) => typeof s === "string" && s.trim().length > 0;
+  const sizeClass = (s, a, b) => (s.length > b ? "longer" : s.length > a ? "long" : "");
+
+  function section(title, lead) {
+    const s = el("section", "block");
+    s.appendChild(el("h2", null, title));
+    if (lead) s.appendChild(el("p", "lead", lead));
+    return s;
+  }
+
+  /* ヘッダー */
+  function renderHead() {
+    const meta = data.meta || {};
+    const h = el("header", "sheet-head");
+    h.appendChild(el("h1", null, meta.title || "あなたのネクサス課題"));
+    h.appendChild(el("p", "source", "『組織の壁を越える――「バウンダリー・スパニング」6つの実践』序章 図1.3 のワークシート"));
+    const row = el("div", "meta-row");
+    [["記入者", meta.owner], ["対象", meta.context], ["実施日", meta.date]].forEach(([k, v]) => {
+      if (!has(v)) return;
+      const d = el("div");
+      d.appendChild(el("span", null, k));
+      d.appendChild(document.createTextNode(v));
+      row.appendChild(d);
+    });
+    h.appendChild(row);
+    root.appendChild(h);
+  }
+
+  /* ホイール */
+  function renderWheel() {
+    const s = section("NEXUS CHALLENGE", "中心が Step 3 の見出し、四方が Step 4 の4つの問い。");
+    const wrap = el("div", "wheel-wrap");
+    const wheel = el("div", "wheel");
+    wheel.appendChild(el("div", "axis-v"));
+    wheel.appendChild(el("div", "axis-h"));
+
+    QUADS.forEach((q) => wheel.appendChild(el("div", "ring-label " + q.cls, q.label)));
+
+    const quads = el("div", "quads");
+    QUADS.forEach((q) => {
+      const cell = el("div", "quad " + q.cls);
+      cell.appendChild(el("div", "q-name", q.label));
+      const src = (data.quadrants || {})[q.key] || {};
+      const txt = has(src.summary) ? src.summary.trim() : "";
+      const body = el("div", "q-text " + (txt ? sizeClass(txt, 38, 56) : "empty"), txt || "未記入");
+      cell.appendChild(body);
+      quads.appendChild(cell);
+    });
+    wheel.appendChild(quads);
+
+    const hub = el("div", "hub");
+    const head = has(data.headline) ? data.headline.trim() : "";
+    hub.appendChild(el("div", "hub-text " + (head ? sizeClass(head, 22, 34) : "empty"), head || "見出し未記入"));
+    wheel.appendChild(hub);
+
+    wrap.appendChild(wheel);
+    s.appendChild(wrap);
+    root.appendChild(s);
+  }
+
+  /* 象限の詳細 */
+  function renderQuadCards() {
+    const s = section("STEP 4 — 4つの問い", "円に収まらない詳細はこちら。");
+    const grid = el("div", "q-cards");
+    QUADS.forEach((q) => {
+      const src = (data.quadrants || {})[q.key] || {};
+      const card = el("div", "q-card " + q.cls);
+      card.appendChild(el("h3", null, q.label));
+      card.appendChild(el("p", "q-ask", q.ask));
+      if (has(src.summary)) card.appendChild(el("p", "q-sum", src.summary));
+      const bullets = Array.isArray(src.bullets) ? src.bullets.filter(has) : [];
+      if (bullets.length) {
+        const ul = el("ul");
+        bullets.forEach((b) => ul.appendChild(el("li", null, b)));
+        card.appendChild(ul);
+      }
+      if (!has(src.summary) && !bullets.length) card.appendChild(el("p", "empty", "未記入"));
+      grid.appendChild(card);
+    });
+    s.appendChild(grid);
+    root.appendChild(s);
+  }
+
+  /* Step 1-2 */
+  function renderCandidates() {
+    const list = Array.isArray(data.candidates) ? data.candidates.filter((c) => c && has(c.title)) : [];
+    if (!list.length) return;
+    const s = section("STEP 1–2 — 課題の候補と絞り込み",
+      "3〜5つ書き出し、境界を越えないと解けないものを残した。");
+    const t = el("table");
+    const thead = el("thead");
+    const tr = el("tr");
+    ["", "課題", "メモ"].forEach((h) => tr.appendChild(el("th", null, h)));
+    thead.appendChild(tr);
+    t.appendChild(thead);
+    const tb = el("tbody");
+    list.forEach((c) => {
+      const r = el("tr", c.selected ? "" : "off");
+      const td0 = el("td");
+      td0.appendChild(el("span", "pill " + (c.selected ? "on" : "no"), c.selected ? "残った" : "外した"));
+      r.appendChild(td0);
+      r.appendChild(el("td", null, c.title));
+      r.appendChild(el("td", null, has(c.note) ? c.note : "—"));
+      tb.appendChild(r);
+    });
+    t.appendChild(tb);
+    s.appendChild(t);
+    root.appendChild(s);
+  }
+
+  function renderCriteria() {
+    const src = data.criteria || {};
+    if (!CRITERIA.some((c) => src[c.key])) return;
+    const s = section("STEP 2 — 選定の基準", "3つとも満たすものだけがネクサス課題になる。");
+    const t = el("table");
+    const tb = el("tbody");
+    CRITERIA.forEach((c) => {
+      const v = src[c.key] || {};
+      const r = el("tr", v.met === true ? "" : "off");
+      const td0 = el("td");
+      const state = v.met === true ? ["on", "満たす"] : v.met === false ? ["no", "満たさない"] : ["no", "保留"];
+      td0.appendChild(el("span", "pill " + state[0], state[1]));
+      r.appendChild(td0);
+      const td1 = el("td");
+      td1.appendChild(el("div", null, c.label));
+      td1.appendChild(el("div", "q-ask", c.desc));
+      r.appendChild(td1);
+      r.appendChild(el("td", null, has(v.note) ? v.note : "—"));
+      tb.appendChild(r);
+    });
+    t.appendChild(tb);
+    s.appendChild(t);
+    root.appendChild(s);
+  }
+
+  function renderBoundaries() {
+    const src = data.boundaries || {};
+    const s = section("越える境界", "「なぜ?」で挙がった境界。5種類のうち該当するものを濃く表示している。");
+    const t = el("table");
+    const thead = el("thead");
+    const tr = el("tr");
+    ["", "境界", "集団", "メモ"].forEach((h) => tr.appendChild(el("th", null, h)));
+    thead.appendChild(tr);
+    t.appendChild(thead);
+    const tb = el("tbody");
+    BOUNDARIES.forEach((b) => {
+      const v = src[b.key];
+      const r = el("tr", v ? "" : "off");
+      const td0 = el("td");
+      td0.appendChild(el("span", "pill " + (v ? "on" : "no"), v ? "該当" : "—"));
+      r.appendChild(td0);
+      const td1 = el("td");
+      td1.appendChild(el("div", null, b.name));
+      td1.appendChild(el("div", "q-ask", b.desc));
+      r.appendChild(td1);
+      r.appendChild(el("td", null, v && has(v.groups) ? v.groups : "—"));
+      r.appendChild(el("td", null, v && has(v.note) ? v.note : "—"));
+      tb.appendChild(r);
+    });
+    t.appendChild(tb);
+    s.appendChild(t);
+    root.appendChild(s);
+  }
+
+  function renderPractices() {
+    const src = data.practices || {};
+    const s = section("STEP 5 — 6つの実践と読む章",
+      "下の段から積み上がる。境界のマネジメントを飛ばして上の段には行けない。");
+    const t = el("table");
+    const thead = el("thead");
+    const tr = el("tr");
+    ["", "実践", "生まれる成果", "章", "メモ"].forEach((h) => tr.appendChild(el("th", null, h)));
+    thead.appendChild(tr);
+    t.appendChild(thead);
+    const tb = el("tbody");
+    PRACTICES.forEach((p) => {
+      const v = src[p.key];
+      const r = el("tr", v ? "" : "off");
+      const td0 = el("td");
+      const pri = v && v.priority === "high" ? ["high", "本命"]
+                : v && v.priority === "watch" ? ["watch", "次に"]
+                : v ? ["on", "関連"] : ["no", "—"];
+      td0.appendChild(el("span", "pill " + pri[0], pri[1]));
+      r.appendChild(td0);
+      const td1 = el("td");
+      td1.appendChild(el("div", null, p.name));
+      td1.appendChild(el("div", "q-ask", p.group));
+      r.appendChild(td1);
+      r.appendChild(el("td", null, p.outcome));
+      r.appendChild(el("td", null, p.chapter));
+      r.appendChild(el("td", null, v && has(v.note) ? v.note : "—"));
+      tb.appendChild(r);
+    });
+    t.appendChild(tb);
+    s.appendChild(t);
+    root.appendChild(s);
+  }
+
+  function renderActions() {
+    const list = Array.isArray(data.nextActions) ? data.nextActions.filter((a) => a && has(a.action)) : [];
+    if (!list.length) return;
+    const s = section("次の一歩", null);
+    const ol = el("ol", "actions");
+    list.forEach((a) => {
+      const li = el("li");
+      if (has(a.horizon)) {
+        li.appendChild(el("span", "pill", a.horizon));
+        li.appendChild(document.createTextNode(" "));
+      }
+      li.appendChild(document.createTextNode(a.action));
+      if (has(a.when)) li.appendChild(el("span", "when", a.when));
+      ol.appendChild(li);
+    });
+    s.appendChild(ol);
+    root.appendChild(s);
+  }
+
+  function renderNotes() {
+    if (!has(data.notes)) return;
+    const s = section("メモ", null);
+    s.appendChild(el("p", "notes", data.notes));
+    root.appendChild(s);
+  }
+
+  function renderFoot() {
+    const f = el("footer", "sheet-foot");
+    f.appendChild(document.createTextNode("出典: クリス・アーンスト / ドナ・クロボット=メイソン『組織の壁を越える』(英治出版, 2018) 序章「あなたのネクサス課題」"));
+    root.appendChild(f);
+  }
+
+  renderHead();
+  renderWheel();
+  renderQuadCards();
+  renderCandidates();
+  renderCriteria();
+  renderBoundaries();
+  renderPractices();
+  renderActions();
+  renderNotes();
+  renderFoot();
+})();
+</script>
+</body>
+</html>
