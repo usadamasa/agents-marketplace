@@ -114,7 +114,7 @@
     {
       "name": "harness",
       "source": "./plugins/harness",
-      "description": "Skills for operating the Claude Code harness itself: writing skills, permissions, sandbox and token usage",
+      "description": "Skills for operating the Claude Code harness itself: writing skills and auditing token usage",
       "category": "productivity"
     },
     {

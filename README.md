@@ -43,7 +43,7 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 | `shellscript` | [plugins/shellscript](plugins/shellscript) | bash スクリプトの書き方と bats-core でのテスト |
 | `toolchain` | [plugins/toolchain](plugins/toolchain) | 開発ツールの置き場所 (Nix devShell、home-manager)、PATH と direnv、`.envrc` を Bash へ反映する hook |
 | `github-ops` | [plugins/github-ops](plugins/github-ops) | GitHub の issue・Actions CI とリポジトリ操作 |
-| `harness` | [plugins/harness](plugins/harness) | Claude Code ハーネス自体の運用 (skill の書き方、permission、sandbox、token の使い方) |
+| `harness` | [plugins/harness](plugins/harness) | Claude Code ハーネス自体の運用 (skill の書き方、token の浪費の監査) |
 | `visuals` | [plugins/visuals](plugins/visuals) | 図・画像・PDF とその見せ方 |
 | `leadership` | [plugins/leadership](plugins/leadership) | 組織の壁を越えるリーダーシップの実践 |
 
