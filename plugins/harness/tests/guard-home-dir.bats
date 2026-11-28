@@ -319,6 +319,24 @@ deny_reason() {
   [[ "$(deny_reason "$output")" == *"$(config_file)"* ]]
 }
 
+@test "YAML が自分の置き場を許していても、Write と Edit では YAML を書かせない" {
+  export XDG_CONFIG_HOME="$HOME/.config"
+  write_config $'allowed_home_directories:\n  - .config\n'
+
+  run "$BIN_PATH" <<< "$(make_file_input Write "$(config_file)" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+  [[ "$(deny_reason "$output")" == *"$(config_file)"* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Edit "$(config_file)" /workspace)"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *'"permissionDecision":"deny"'* ]]
+
+  run "$BIN_PATH" <<< "$(make_file_input Read "$(config_file)" /workspace)"
+  [ "$status" -eq 0 ]
+  [ -z "$output" ]
+}
+
 @test "XDG_CONFIG_HOME が無ければ ~/.config の下の YAML を読む" {
   unset XDG_CONFIG_HOME
   mkdir -p "$HOME/.config/claude-harness"

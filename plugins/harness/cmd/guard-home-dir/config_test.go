@@ -196,3 +196,41 @@ func TestDenyReason(t *testing.T) {
 		}
 	})
 }
+
+// 許す置き場の YAML は、YAML がその置き場を許していても、ファイルを書くツールからは書かせない。
+// Claude Code が自分で許可を広げられると guard の意味が無くなる。
+func TestWritesConfig(t *testing.T) {
+	const cfgPath = "/home/tester/.config/claude-harness/guard-home-dir.yaml"
+	tests := []struct {
+		name string
+		tool string
+		path string
+		want bool
+	}{
+		{"Write で YAML を書く", "Write", cfgPath, true},
+		{"Edit で YAML を直す", "Edit", cfgPath, true},
+		{"NotebookEdit で YAML の置き場に書く", "NotebookEdit", "/home/tester/.config/claude-harness/x.ipynb", true},
+		{"Write で YAML の置き場に別のファイルを書く", "Write", "/home/tester/.config/claude-harness/other.yaml", true},
+		{"Read で YAML を読む", "Read", cfgPath, false},
+		{"Grep で YAML の置き場を探す", "Grep", "/home/tester/.config/claude-harness", false},
+		{"Write で似た名前の置き場に書く", "Write", "/home/tester/.config/claude-harness-other/a.yaml", false},
+		{"Write でほかの置き場に書く", "Write", "/home/tester/src/a.go", false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := writesConfig(tt.tool, []string{tt.path}, cfgPath); got != tt.want {
+				t.Errorf("writesConfig(%q, %q) = %v, want %v", tt.tool, tt.path, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestConfigWriteReason(t *testing.T) {
+	const cfgPath = "/home/tester/.config/claude-harness/guard-home-dir.yaml"
+	r := configWriteReason(cfgPath)
+	for _, want := range []string{cfgPath, "ユーザー"} {
+		if !strings.Contains(r, want) {
+			t.Errorf("reason = %q, want it to contain %q", r, want)
+		}
+	}
+}
