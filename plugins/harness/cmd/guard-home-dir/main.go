@@ -80,7 +80,7 @@ func main() {
 
 	// 許可パスチェック
 	cfg := loadConfig(home, os.Getenv)
-	if writesConfig(input.ToolName, resolvedPaths, resolveConfigPath(cfg.path)) {
+	if writesConfig(input.ToolName, resolvedPaths, cfg.path) {
 		writeDeny(configWriteReason(cfg.path))
 		return
 	}
@@ -134,14 +134,6 @@ func resolvePaths(paths []string, cwd string) []string {
 		resolved = append(resolved, r)
 	}
 	return resolved
-}
-
-// resolveConfigPath は YAML の置き場を、ツールのパスと同じく symlink を解決して比べられる形にする。
-func resolveConfigPath(p string) string {
-	if r, err := pathutil.ResolveRealpath(p); err == nil {
-		return r
-	}
-	return filepath.Clean(p)
 }
 
 // writeDeny は deny JSON を stdout に出力する。

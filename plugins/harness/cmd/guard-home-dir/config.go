@@ -7,9 +7,12 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"gopkg.in/yaml.v3"
+
+	"github.com/usadamasa/agents-marketplace/plugins/harness/internal/pathutil"
 )
 
 // configState は guard-home-dir.yaml を読んだ結果。
@@ -95,34 +98,45 @@ func validateDir(d string) error {
 }
 
 func containsDotDot(d string) bool {
-	for _, part := range strings.Split(d, "/") {
-		if part == ".." {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(strings.Split(d, "/"), "..")
 }
 
 // writesConfig は、ファイルを書くツールが YAML の置き場 (YAML のあるディレクトリ) へ書くかを返す。
 // YAML がその置き場を許していても止める。Claude Code が自分で許可を広げられないようにするため。
+// paths は symlink を解決したパス。YAML が symlink なら、リンクのあるディレクトリとリンク先の
+// ディレクトリの両方を置き場とみなす。
 func writesConfig(toolName string, paths []string, cfgPath string) bool {
 	switch toolName {
 	case "Write", "Edit", "NotebookEdit":
 	default:
 		return false
 	}
-	dir := filepath.Dir(cfgPath)
+	dirs := []string{
+		filepath.Dir(cfgPath),
+		realpathOrClean(filepath.Dir(cfgPath)),
+		filepath.Dir(realpathOrClean(cfgPath)),
+	}
 	for _, p := range paths {
-		if p == dir || strings.HasPrefix(p, dir+"/") {
-			return true
+		for _, dir := range dirs {
+			if p == dir || strings.HasPrefix(p, dir+"/") {
+				return true
+			}
 		}
 	}
 	return false
 }
 
+// realpathOrClean は symlink を解決したパスを返す。解決できなければ字面を整えて返す。
+func realpathOrClean(p string) string {
+	if r, err := pathutil.ResolveRealpath(p); err == nil {
+		return r
+	}
+	return filepath.Clean(p)
+}
+
 // configWriteReason は YAML の置き場への書き込みを止めた理由を返す。
 func configWriteReason(cfgPath string) string {
-	return fmt.Sprintf("ホームディレクトリ走査防止: %s はユーザーが手で編集するファイルです。Claude Code から書き換えることはできません。許す置き場を変えるなら、ユーザーに依頼してください。", cfgPath)
+	return fmt.Sprintf("ホームディレクトリ走査防止: %s (と、そのリンク先) は、許す置き場をユーザーが手で直すためのファイルです。Claude Code からは書き換えられません。許す置き場を変えるなら、ユーザーに依頼してください。", cfgPath)
 }
 
 // denyReason は deniedPath を止めた理由と、YAML の置き場と書き方を返す。
