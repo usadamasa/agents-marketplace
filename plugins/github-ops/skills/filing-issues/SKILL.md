@@ -14,24 +14,16 @@ description: >-
 
 ## 役割ごとのリポジトリ名を引く
 
-起票先は役割で決まる。役割ごとのリポジトリ名は、
-利用者のグローバル CLAUDE.md (`~/.claude/CLAUDE.md`) に書いたものを使う。
+起票先は役割で決まる。役割ごとのリポジトリ名は、利用者が github-ops の plugin の設定に入れた値を使う。
 
-| 役割 | 中身 |
-| ---- | ---- |
-| ハーネス設定のリポジトリ | `~/.claude/` へ配る CLAUDE.md・skill・hook・`settings.json` を git 管理するもの (dotfiles など) |
-| 横断のリポジトリ | 複数のリポジトリをまたぐ作業の issue を置くもの |
+| 役割 | リポジトリ | 中身 |
+| ---- | ---- | ---- |
+| ハーネス設定のリポジトリ | `${user_config.harness_repo}` | `~/.claude/` へ配る CLAUDE.md・skill・hook・`settings.json` を git 管理するもの (dotfiles など) |
+| 横断のリポジトリ | `${user_config.cross_repo}` | 複数のリポジトリをまたぐ作業の issue を置くもの |
 
-CLAUDE.md に書く形の例は次のとおり。
-
-```markdown
-## issue の起票先
-
-- ハーネス設定: `<owner>/<repo>`
-- 横断の作業: `<owner>/<repo>`
-```
-
-書いていない役割に当たる課題が出たら、起票の前に利用者へリポジトリ名を聞き、CLAUDE.md に書くかを確かめる。
+リポジトリの列が `<owner>/<repo>` の形になっていない役割は、まだ設定されていない。
+その役割に当たる課題が出たら、起票の前に利用者へリポジトリ名を聞き、
+github-ops の README の「利用者の設定」節にある入れ方を案内する。
 
 ## 課題の対象ごとの起票先
 

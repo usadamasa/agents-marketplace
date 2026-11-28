@@ -121,19 +121,16 @@ area の表は「area」と「含むもの」の列で作り、案を利用者�
 ### 2. ラベルを宣言する
 
 ラベルを作る経路は 1 つにする。利用者がラベルを宣言的に管理するツール (リポジトリ設定を YAML で配るものなど) を
-使っているかは、利用者のグローバル CLAUDE.md (`~/.claude/CLAUDE.md`) へ書いたものに従う。
+使っているかは、github-ops の plugin の設定に入れた値で決まる。
 
-```markdown
-## GitHub のラベル
+- ラベルを宣言的に管理する: `${user_config.labels_declarative}`
 
-- 宣言的に管理: する (`gh label create` で作るなら「しない」)
-```
+値で経路を分ける。
 
-書いていなければ利用者に確かめ、CLAUDE.md に書くかを聞く。
-
-- 「しない」なら `gh label create` で作る
-- 「する」なら `gh label create` で作らない。足すラベルの名前・色・description を示し、
+- `false` なら `gh label create` で作る
+- `true` なら `gh label create` で作らない。足すラベルの名前・色・description を示し、
   宣言を持つリポジトリで直して apply するよう利用者に案内する
+- どちらでもなければ未設定。利用者に確かめ、github-ops の README の「利用者の設定」節にある入れ方を案内する
 
 どちらの経路でも、ラベルの置き分けと見た目は次のようにそろえる。
 
@@ -175,7 +172,15 @@ area ごとの issue の検索と、廃止した機能の issue を拾うのに 
 ラベル同期の workflow は、PR の closing issue を引いてラベルを足すだけにし、PR に手で付けたラベルを消さない。
 fork と dependabot の PR は token に書き込み権限が無いので対象から外す。
 複数の repo で同じ workflow を使うなら、1 つの repo に reusable workflow として置き、各 repo からは `uses:` で呼ぶ。
-どの repo の workflow を呼ぶかと呼び出し側の雛形は、利用者の設定 (グローバル CLAUDE.md) から読む。
+呼び出し側の雛形は、次のコマンドで出るリポジトリのうち、`.github/workflows/` でラベル同期の workflow を
+`uses:` しているものから写す。呼び方はその `uses:` の参照先の README に従う。
+
+```sh
+gh repo list ${user_config.shared_ci_owner} --topic ${user_config.shared_ci_topic}
+```
+
+コマンドの owner か topic が値に置き換わっていなければ未設定。利用者に確かめ、
+github-ops の README の「利用者の設定」節にある入れ方を案内する。
 `release.yml` は GitHub Release の自動生成 note が読む。tagpr を使う repo では Release PR の本文にも効く。
 
 ### 6. PR の決めごとを repo に書く
