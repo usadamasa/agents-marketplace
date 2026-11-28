@@ -4,8 +4,10 @@ GitHub の issue・Actions CI と、ローカルのリポジトリ操作の skil
 リポジトリの追従 (repo-sync skill) は同梱の Go の CLI `repo-scan` が行う。
 repo-scan は SessionStart hook が `${CLAUDE_PLUGIN_DATA}/bin/repo-scan` へビルドする (Go が要る)。
 
-```text
-/plugin install github-ops --marketplace usadamasa/agents-marketplace
+marketplace を[リポジトリの README の「使い方」](../../README.md#使い方)のとおりに登録してから、次のコマンドで install する。
+
+```sh
+claude plugin install github-ops@usadamasa
 ```
 
 ## 利用者の設定

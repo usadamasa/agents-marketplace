@@ -75,7 +75,9 @@ test -x ~/.claude/plugins/data/visuals-usadamasa/bin/cleanshot-capture
 
 - 無ければ Go が入っているかを利用者に確かめる。SessionStart hook は Go が無いと何もせずに終わる
 - hook でのビルドが失敗していれば、原因は `${CLAUDE_PLUGIN_DATA}/build-cleanshot-capture.log` にある
-- 手でビルドし直すときは次を実行する
+
+ビルドの置き場 (`${CLAUDE_PLUGIN_DATA}/bin`) は sandbox の中から書けないので、次のコマンドは利用者に実行してもらう。
+Claude Code の中で実行するなら、先頭に `!` を付けるよう伝える。
 
 ```sh
 CLAUDE_PLUGIN_DATA="${CLAUDE_PLUGIN_DATA}" "${CLAUDE_PLUGIN_ROOT}/scripts/build-cleanshot-capture.sh"
