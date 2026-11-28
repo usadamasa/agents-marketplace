@@ -31,3 +31,5 @@ excludedCommands の照合はコマンドの字面で行われ、パターンの
 - 絶対パスや `$HOME` で書いたパターンは、`~` で打つ呼び出しに当たらない
 - 末尾の ` *` は、引数なしの `repo-scan` にも当たる
 - sandbox の外で動くコマンドに OS の保護は無い。repo-scan は push・`reset --hard`・`git config` の書き込みをしない
+
+<!-- paths-filter の試し。マージしない -->
