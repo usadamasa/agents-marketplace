@@ -322,6 +322,7 @@ trap "rm -f '$tmp_file'" EXIT
 
 ```bash
 setup() {
+  PROJECT_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
   load 'helpers/zle-mock.sh'  # 先に読み込む
   source "$PROJECT_ROOT/script.sh"
 }

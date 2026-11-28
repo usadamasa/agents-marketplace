@@ -86,6 +86,7 @@ bats はバックグラウンドで多重に投げない。ハングすると同
 setup() {
   # 各テスト前に実行
   load 'helpers/mock.sh'
+  PROJECT_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
   source "$PROJECT_ROOT/script.sh"
 }
 
