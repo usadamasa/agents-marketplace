@@ -102,7 +102,7 @@ jq() { COUNT=$((COUNT + 1)); printf '%s\t%s\n' "Bash" "$MOCK_CMD"; }
 
 ```bash
 setup() {
-  DOTFILE_DIR="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  PROJECT_ROOT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
 
   # ✅ 正しい順序: モックが先
   load 'helpers/zle-mock.sh'
@@ -110,7 +110,7 @@ setup() {
   load 'fixtures/git-setup.sh'
 
   # テスト対象は最後
-  source "$DOTFILE_DIR/config/zsh/funcs/peco-src.sh"
+  source "$PROJECT_ROOT/funcs/peco-gcop.sh"
 }
 ```
 
@@ -118,7 +118,7 @@ setup() {
 
 ### テスト用 Git リポジトリ
 
-dotfiles のブランチを汚さないよう、一時ディレクトリにテスト用リポジトリを作る。
+作業中のリポジトリのブランチを汚さないよう、一時ディレクトリにテスト用リポジトリを作る。
 
 ```bash
 #!/usr/bin/env bash
@@ -323,7 +323,7 @@ trap "rm -f '$tmp_file'" EXIT
 ```bash
 setup() {
   load 'helpers/zle-mock.sh'  # 先に読み込む
-  source "$DOTFILE_DIR/script.sh"
+  source "$PROJECT_ROOT/script.sh"
 }
 ```
 

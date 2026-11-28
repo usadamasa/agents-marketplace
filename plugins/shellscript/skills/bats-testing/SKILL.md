@@ -1,6 +1,6 @@
 ---
 name: bats-testing
-description: bats-core でシェルスクリプトのテストを書くとき、テストを足すか迷ったとき、既存テストを棚卸しするときに使う｡
+description: bats-core でシェルスクリプトのテストを書くとき、テストを足すか迷ったとき、既存テストを棚卸しするときに使う。
 ---
 
 # bats-core シェルスクリプトテストガイド
@@ -86,7 +86,7 @@ bats はバックグラウンドで多重に投げない。ハングすると同
 setup() {
   # 各テスト前に実行
   load 'helpers/mock.sh'
-  source "$DOTFILE_DIR/script.sh"
+  source "$PROJECT_ROOT/script.sh"
 }
 
 teardown() {
@@ -123,18 +123,9 @@ $lines   # 出力を行ごとに分割した配列
 [ "${#lines[@]}" -eq 5 ]               # 行数
 ```
 
-## dotfiles での使用箇所
-
-| ファイル | 説明 |
-|---------|------|
-| `tests/peco-gcop.bats` | peco-gcop 関数のテスト |
-| `tests/fixtures/git-setup.sh` | テスト用 Git リポジトリ作成 |
-| `tests/helpers/peco-mock.sh` | peco コマンドのモック |
-| `tests/helpers/zle-mock.sh` | zsh zle/bindkey のモック |
-
 ### ディレクトリ構造
 
-```
+```text
 tests/
 ├── *.bats              # メインテストファイル
 ├── fixtures/           # テスト用データ・セットアップ
