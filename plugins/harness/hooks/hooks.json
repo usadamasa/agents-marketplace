@@ -1,5 +1,5 @@
 {
-  "description": "セッションの開始時に analyze-tokens を plugin の data ディレクトリへ建てる (ソースが変わったときだけ)",
+  "description": "セッションの開始時に Go のバイナリを plugin の data ディレクトリへ建て (ソースが変わったときだけ)、PreToolUse で guard を当てる。guard の hook は失敗したら止める",
   "hooks": {
     "SessionStart": [
       {
@@ -8,6 +8,46 @@
             "type": "command",
             "command": "CLAUDE_PLUGIN_DATA=\"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}/scripts/build-analyze-tokens.sh\" --if-stale",
             "timeout": 300
+          },
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_DATA=\"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}/scripts/build-guards.sh\" --if-stale",
+            "timeout": 300
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Glob|Grep|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_DATA=\"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-entry.sh\" guard-home-dir",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "CLAUDE_PLUGIN_DATA=\"${CLAUDE_PLUGIN_DATA}\" \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-entry.sh\" guard-bash",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/guard-optin-env.sh\"",
+            "timeout": 10,
+            "onFailure": "block"
           }
         ]
       }

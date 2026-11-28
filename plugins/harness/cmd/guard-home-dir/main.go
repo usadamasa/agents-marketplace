@@ -11,8 +11,8 @@ import (
 	"github.com/usadamasa/agents-marketplace/plugins/harness/internal/pathutil"
 )
 
-// 許可するホームディレクトリ配下のサブディレクトリ
-var allowedSubdirs = []string{
+// alwaysAllowedSubdirs は YAML に書かなくても許すホーム配下の置き場。
+var alwaysAllowedSubdirs = []string{
 	".claude",
 }
 
@@ -79,13 +79,14 @@ func main() {
 	resolvedPaths := resolvePaths(paths, cwd)
 
 	// 許可パスチェック
-	deniedPath := checkPaths(resolvedPaths, home, cwd)
+	cfg := loadConfig(home, os.Getenv)
+	deniedPath := checkPaths(resolvedPaths, home, cwd, cfg.dirs)
 	if deniedPath == "" {
 		os.Exit(0)
 	}
 
 	// deny JSON 出力
-	writeDeny(deniedPath)
+	writeDeny(denyReason(deniedPath, cfg))
 }
 
 // extractToolPaths はツール名に応じてチェック対象パスを抽出する。
@@ -132,12 +133,12 @@ func resolvePaths(paths []string, cwd string) []string {
 }
 
 // writeDeny は deny JSON を stdout に出力する。
-func writeDeny(deniedPath string) {
+func writeDeny(reason string) {
 	resp := denyResponse{
 		HookSpecificOutput: hookOutput{
 			HookEventName:            "PreToolUse",
 			PermissionDecision:       "deny",
-			PermissionDecisionReason: fmt.Sprintf("ホームディレクトリ走査防止: %s はプロジェクトディレクトリおよび許可パスの外にあるためアクセスできません", deniedPath),
+			PermissionDecisionReason: reason,
 		},
 	}
 	out, _ := json.Marshal(resp)
@@ -171,15 +172,18 @@ func extractFilePath(toolName string, input map[string]any) string {
 }
 
 // checkPaths はパスリストを検証し、禁止パスがあればそのパスを返す。
-// 全て許可なら空文字列を返す。
-func checkPaths(paths []string, home string, cwd string) string {
+// 全て許可なら空文字列を返す。dirs は YAML で許したホームからの相対パス。
+func checkPaths(paths []string, home string, cwd string, dirs []string) string {
 	if len(paths) == 0 {
 		return ""
 	}
 
 	// 許可パスリストを構築
-	allowed := make([]string, 0, len(allowedSubdirs)+1)
-	for _, sub := range allowedSubdirs {
+	allowed := make([]string, 0, len(alwaysAllowedSubdirs)+len(dirs)+1)
+	for _, sub := range alwaysAllowedSubdirs {
+		allowed = append(allowed, filepath.Join(home, sub))
+	}
+	for _, sub := range dirs {
 		allowed = append(allowed, filepath.Join(home, sub))
 	}
 	if cwd != "" {
