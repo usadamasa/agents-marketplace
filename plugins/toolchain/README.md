@@ -4,8 +4,8 @@
 リポジトリが固定したツールを Claude Code の Bash の PATH へ載せる方法をまとめた plugin。
 リポジトリの `.envrc` を Bash の環境へ反映する hook `direnv-env.sh` を同梱する。
 
-```text
-/plugin install toolchain --marketplace usadamasa/agents-marketplace
+```sh
+claude plugin install toolchain@usadamasa
 ```
 
 ## 同梱の hook

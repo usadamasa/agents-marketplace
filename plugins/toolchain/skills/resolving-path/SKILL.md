@@ -61,7 +61,7 @@ env を書かずに終わっている。nix の初回や `flake.lock` 更新直�
 2 と 3 が要る (仕組みは後述)。
 
 未許可のまま 2 と 3 を実行すると、hook は何も書かずに `direnv allow` を促す通知を出す。この通知は表に
-出ないことがあるので、戻らなければ `direnv status` の `Found RC allowed` を見る (0 が許可済み)。
+出ないことがあるので、4 で `DIRENV_DIR` が cwd を指さないままなら `direnv status` の `Found RC allowed` を見る (0 が許可済み)。
 
 `.envrc` が未反映になる契機は次のとおり。
 

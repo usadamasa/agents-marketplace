@@ -37,4 +37,3 @@ description: >-
 - devShell を実際に書く・足す・バージョンを上げるときの手順は toolchain:setting-up-nix-devshell に従う。
 - OS のパッケージマネージャ側の書き込み (アンインストールなど) が strict sandbox で
   `Operation not permitted` になるときは、sandbox で失敗したときの切り分けの skill に従う。
-- 既存の OS パッケージマネージャの中身を棚卸しして移行プランを立てる手順は、この skill の対象外。

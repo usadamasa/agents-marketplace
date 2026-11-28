@@ -38,7 +38,7 @@ flake は git tree を store へコピーして評価するので、untracked �
 ## バージョンとハッシュを調べる
 
 - 実際に入るバージョンは devShell に入ってから `<tool> --version` で見る。`nix search nixpkgs` はレジストリの nixpkgs を
-  引くので `flake.lock` の rev とは別物で、attr 名 (`go_1_27` など) にも当たらない。
+  引くので、`flake.lock` の rev が持つバージョンとは別物になる。
 - `fetchFromGitHub` の `hash` や `vendorHash` は `pkgs.lib.fakeHash` を置いて `nix develop --command true` を実行し、
   エラーの `got:` から読む。
 

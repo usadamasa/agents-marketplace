@@ -60,7 +60,7 @@ Claude Code を sandbox で動かしているなら、`nix` を `excludedCommand
 | `nix-direnv: Evaluating current devShell failed. Falling back to previous environment!` | `.envrc` に `nix_direnv_disallow_fallback` が無く、前回の devShell が使われている | 直前の nix のエラーを読む。`.envrc` を上の型にする |
 | `direnv: error exit status 1` (`using flake` の後) | `use flake` が失敗して `\|\| exit 1` が効いた | その上に出ている nix のエラーを読んで直す |
 | `warning: unknown setting 'eval-cores'` / `'lazy-trees'` | PATH に nix が無く、nix-direnv が同梱の上流 nix で評価した (Determinate Nix の設定を知らない) | 動くが、シェルの設定 (`.zshenv` など) で PATH を直す。`.envrc` では直さない |
-| `warning: ignoring the client-specified setting 'use-xdg-base-directories'` | trusted user でないため client 側の設定が daemon に渡らない | 無害。消すなら `/etc/nix/nix.custom.conf` 側 |
+| `warning: ignoring the client-specified setting 'use-xdg-base-directories'` | trusted user でないため client 側の設定が daemon に渡らない | 無害。`/etc/nix/nix.custom.conf` の `trusted-users` に足せば消えるが、trusted user は daemon に対して root 相当の権限を持つので、警告のためだけには足さない |
 
 ## 推奨しない形
 
