@@ -1,5 +1,7 @@
 # agents-marketplace
 
+<!-- paths-filter の試し。マージしない -->
+
 usadamasa の Claude Code plugin marketplace。
 plugin は専用のリポジトリか、このリポジトリの `plugins/<name>/` に置き、
 `.claude-plugin/marketplace.json` で所在を宣言する。
