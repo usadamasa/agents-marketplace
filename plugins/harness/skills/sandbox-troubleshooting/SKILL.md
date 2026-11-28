@@ -21,7 +21,6 @@ Bash は原則 sandbox (Seatbelt) 内で動き、`sandbox.excludedCommands` の�
   [anthropics/claude-code#88708](https://github.com/anthropics/claude-code/issues/88708)
   が上がっている (not planned でクローズ、運営の返信は無い)。
   `excludedCommands` の照合などセッション開始時固定の部分が別にあるかは未確認。
-- `allowUnsandboxedCommands: false` なら `dangerouslyDisableSandbox` はランタイムが無視する。guard-bash も deny する。
 - `autoAllowBashIfSandboxed: true` なら、`permissions.allow` の `Bash(...)` は excluded のコマンドを指すものだけ意味を持つ。
 
 ## 症状別 早見表
