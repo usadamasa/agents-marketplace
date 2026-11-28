@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
 # direnv-env.sh のテスト
-# 本物の direnv を使う｡許可の記録 (XDG_DATA_HOME) と設定 (XDG_CONFIG_HOME) は
-# テストごとの一時ディレクトリへ向け、端末の direnv の状態に触れない｡
+# 本物の direnv を使う。許可の記録 (XDG_DATA_HOME) と設定 (XDG_CONFIG_HOME) は
+# テストごとの一時ディレクトリへ向け、端末の direnv の状態に触れない。
 bats_require_minimum_version 1.5.0
 
-SCRIPT_PATH="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/shared/hooks/direnv-env.sh"
+SCRIPT_PATH="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/hooks/direnv-env.sh"
 
 load lib/hook-test-helpers
 
@@ -15,7 +15,7 @@ setup() {
   CASE_DIR="$TEST_FILE_TMPDIR/test-$BATS_TEST_NUMBER"
   NEW_CWD="$CASE_DIR/project"
   mkdir -p "$NEW_CWD"
-  # direnv のログ (log_status) は stderr に出る｡これが CLAUDE_ENV_FILE に混ざると読み込みで落ちる
+  # direnv のログ (log_status) は stderr に出る。これが CLAUDE_ENV_FILE に混ざると読み込みで落ちる
   printf '%s\n' 'log_status "noise on stderr"' 'export FROM_ENVRC=loaded' > "$NEW_CWD/.envrc"
   export XDG_DATA_HOME="$CASE_DIR/data" XDG_CONFIG_HOME="$CASE_DIR/config"
   export CLAUDE_ENV_FILE="$CASE_DIR/env.sh"
@@ -24,7 +24,7 @@ setup() {
   printf '%s\n' "export SEEDED_BY_PREVIOUS_EVENT=1" > "$CLAUDE_ENV_FILE"
 }
 
-# 第 1 引数が cd の行き先 (new_cwd)、第 2 引数が hook 起動時の cwd (省略時は new_cwd と同じ)｡
+# 第 1 引数が cd の行き先 (new_cwd)、第 2 引数が hook 起動時の cwd (省略時は new_cwd と同じ)。
 run_with_input() {
   local new_cwd="${1:-$NEW_CWD}" cwd="${2:-${1:-$NEW_CWD}}"
   jq -n --arg new "$new_cwd" --arg cwd "$cwd" \
@@ -32,7 +32,7 @@ run_with_input() {
     | "${HOOK_BASH:-/bin/bash}" "$SCRIPT_PATH"
 }
 
-# SessionStart の入力｡new_cwd / old_cwd は無く、cwd だけが入る
+# SessionStart の入力。new_cwd / old_cwd は無く、cwd だけが入る
 run_with_session_start_input() {
   local cwd="${1:-$NEW_CWD}" source="${2:-startup}"
   jq -n --arg cwd "$cwd" --arg source "$source" \
@@ -55,7 +55,7 @@ source_env_var() {
 # direnv は PATH_add や $PWD を symlink を解いた実体のパスで書く (macOS の /tmp は /private/tmp)
 real_path() { (cd "$1" && pwd -P); }
 
-# Bash ツールのシェルは hook の PATH の末尾に plugin の bin/ を足してから env file を実行する｡
+# Bash ツールのシェルは hook の PATH の末尾に plugin の bin/ を足してから env file を実行する。
 # 第 1 引数をその時点の PATH として env file を実行し、結果の PATH を返す
 source_path_from() {
   bash -euc 'PATH="$2"; source "$1"; printf "%s" "$PATH"' _ "$CLAUDE_ENV_FILE" "$1"
@@ -86,7 +86,7 @@ source_path_from() {
 }
 
 @test "評価に失敗する .envrc: CLAUDE_ENV_FILE を変えず、systemMessage に .envrc の stderr と終了コードを載せて exit 0" {
-  # 許可済みでも .envrc 自体が失敗するケース｡未許可と同じ文言だと direnv allow を試して空振りする
+  # 許可済みでも .envrc 自体が失敗するケース。未許可と同じ文言だと direnv allow を試して空振りする
   printf '%s\n' 'echo "boom from envrc" >&2' 'exit 1' > "$NEW_CWD/.envrc"
   direnv allow "$NEW_CWD"
   run --separate-stderr run_with_input
@@ -102,7 +102,7 @@ source_path_from() {
 
 @test "SessionStart: new_cwd が無くても cwd の .envrc を読み、起動時の内容は置き換わる" {
   # claude --worktree や .envrc 未読み込みのシェルからの起動、resume / compact 後の再開で、
-  # 起動時の cwd の .envrc を Bash の環境へ載せる｡CwdChanged と同じく置き換えで書く
+  # 起動時の cwd の .envrc を Bash の環境へ載せる。CwdChanged と同じく置き換えで書く
   direnv allow "$NEW_CWD"
   run run_with_session_start_input
   [ "$status" -eq 0 ]
@@ -114,7 +114,7 @@ source_path_from() {
 }
 
 @test "SessionStart (compact): cwd が worktree ならその .envrc を読む" {
-  # compact 後の SessionStart は cwd が worktree になっている｡source によらず cwd で評価する
+  # compact 後の SessionStart は cwd が worktree になっている。source によらず cwd で評価する
   make_allowed_dir "$CASE_DIR/worktree" worktree
   run run_with_session_start_input "$CASE_DIR/worktree" compact
   [ "$status" -eq 0 ]
@@ -124,7 +124,7 @@ source_path_from() {
 
 @test "Claude Code が cwd を戻した cd: new_cwd ではなく cwd の .envrc を読む" {
   # 作業ディレクトリの外へ cd すると、Claude Code は cwd をプロジェクトへ戻すが CwdChanged は
-  # 再発火しない｡hook の入力では戻し先が cwd、cd の行き先が new_cwd に入る (2026-10-10 に実測)
+  # 再発火しない。hook の入力では戻し先が cwd、cd の行き先が new_cwd に入る (2026-10-10 に実測)
   direnv allow "$NEW_CWD"
   make_allowed_dir "$CASE_DIR/outside" outside
   run run_with_input "$CASE_DIR/outside" "$NEW_CWD"

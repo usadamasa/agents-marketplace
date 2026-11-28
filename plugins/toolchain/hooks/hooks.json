@@ -1,0 +1,27 @@
+{
+  "description": "セッションの開始時と cwd の変更時に、cwd の .envrc を direnv で評価して CLAUDE_ENV_FILE へ書く",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/direnv-env.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/direnv-env.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

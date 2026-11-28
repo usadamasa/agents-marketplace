@@ -16,7 +16,7 @@ description: >-
 
 | 問い | 行き先 |
 |---|---|
-| `flake.nix` を持つ特定のリポジトリの中だけで使うか (ビルド・lint・テストのツール) | devShell (setting-up-nix-devshell) |
+| `flake.nix` を持つ特定のリポジトリの中だけで使うか (ビルド・lint・テストのツール) | devShell (toolchain:setting-up-nix-devshell) |
 | direnv の外から参照されるか (global hook が `command -v` で探す、シェル設定から呼ぶ、複数リポジトリをまたいで日常的に使う CLI) | home-manager の `home.packages` |
 | nixpkgs に同名 attr が無い (名前の一部で検索して確かめた上で)、ログインシェルそのもの、cask のフォント、nixpkgs 版が OS 同梱コマンドを接頭辞なしで隠してしまい接頭辞付き attr も無い | OS のパッケージマネージャ (brew など) に残す |
 
@@ -34,8 +34,7 @@ description: >-
 
 ## 関連 skill
 
-- devShell を実際に書く・足す・バージョンを上げるときの手順は setting-up-nix-devshell に従う。
+- devShell を実際に書く・足す・バージョンを上げるときの手順は toolchain:setting-up-nix-devshell に従う。
 - OS のパッケージマネージャ側の書き込み (アンインストールなど) が strict sandbox で
-  `Operation not permitted` になるときは sandbox-troubleshooting を見る。
-- 既存の OS パッケージマネージャの中身を棚卸しして移行プランを立てる手順は、各リポジトリの
-  プロジェクトスコープ skill に従う (このリポジトリの対象外)。
+  `Operation not permitted` になるときは、sandbox で失敗したときの切り分けの skill に従う。
+- 既存の OS パッケージマネージャの中身を棚卸しして移行プランを立てる手順は、この skill の対象外。

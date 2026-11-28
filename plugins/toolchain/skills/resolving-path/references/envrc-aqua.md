@@ -46,7 +46,7 @@ has aqua && use aqua
 - policy は実行のたびに aqua-proxy が確かめる。インストール済みでも、`AQUA_POLICY_CONFIG` の無い環境から
   呼べば code 002 で落ちる。
 - 素の `aqua i` はこの分だけ code 002 で飛ばす。ローカルレジストリのパッケージは、policy を `env:` で渡している
-  task を素で打って入れる。
+  task を前置きなしで実行して入れる。
 
 shim は宣言の無いパッケージにも残るので、`command -v <ツール名>` が通っても「使える」とは言えない。
 動くかは実際に起動して確かめる。
@@ -61,7 +61,7 @@ PATH で見つけた実行ファイルを、別 cwd の子プロセスで使い�
 具体例は prek (pre-commit 互換) と uv。prek は uv を「prek 実体の隣 → PATH で `<uv> --version` が通る
 最初の uv → prek 管理 → ダウンロード」の順で探す (prek にはパスを名指しする設定・環境変数が無い)。
 PATH にあるのが aqua の shim だと、リポジトリを cwd にした `--version` は通るので採用される。その後
-prek は `~/.cache/prek/repos/<hash>` を cwd に `uv pip install` を打ち、shim がそこから `aqua.yaml` を
+prek は `~/.cache/prek/repos/<hash>` を cwd に `uv pip install` を実行し、shim がそこから `aqua.yaml` を
 見つけられず 004 になる。
 
 対処は、`.envrc` で uv の実体のディレクトリを PATH へ足し、shim より先に見つかるようにする。
@@ -92,7 +92,7 @@ fi
 | 経路 | 渡し方 |
 | ---- | ---- |
 | CI | direnv は動かない。Taskfile の `env:` に書き、CI からもその task を呼ぶ。`aqua install` は不要 (lazy install) |
-| Taskfile 経由でない直接呼び出し (スクリプト) | スクリプト自身が冒頭で `export AQUA_POLICY_CONFIG="$(cd "$(dirname "$0")/.." && pwd)/aqua/policy.yaml"` のように自分の位置から組み立てる。呼び出し側の前置きは Claude Code の Bash で guard が止める |
+| Taskfile 経由でない直接呼び出し (スクリプト) | スクリプト自身が冒頭で `export AQUA_POLICY_CONFIG="$(cd "$(dirname "$0")/.." && pwd)/aqua/policy.yaml"` のように自分の位置から組み立てる。呼び出し側の前置きは Claude Code の Bash では使わない (SKILL.md「推奨しない形」) |
 | Claude Code の Bash | SessionStart / CwdChanged の direnv hook が `.envrc` を反映する (SKILL.md「仕組み」) |
 
-`aquaproj/aqua-installer` の action は major だけの浮動タグを打たないので、patch まで書く。
+`aquaproj/aqua-installer` の action は major だけの浮動タグを付けないので、patch まで書く。

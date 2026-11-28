@@ -44,7 +44,7 @@ SKILL.md の手順に、Go を使うリポジトリで足す判断を置く。
 
 自分のモジュールを flake の `packages` として `buildGoModule` で出しているリポジトリは、依存のバージョンを上げて
 `go.sum` が変わると `vendorHash` がずれ、`nix build` と CI の nix package ジョブが落ちる。依存を上げたら
-`nix build .#default --no-link` を打ち、エラーの `got:` の値で `vendorHash` を付け直して同じ PR に含める。
+`nix build .#default --no-link` を実行し、エラーの `got:` の値で `vendorHash` を付け直して同じ PR に含める。
 nixpkgs を上げたときは、`nix build .#default` の後に `go version result/bin/<name>` で配布バイナリの go も見る。
 
 ## Go のセキュリティ修正を取り込む

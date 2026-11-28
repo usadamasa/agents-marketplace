@@ -9,8 +9,8 @@ description: >-
 
 開発ツールはリポジトリの `flake.nix` の devShell に並べ、`flake.lock` が nixpkgs の rev を固定する。
 ツール単位のバージョンはその rev が持つバージョンになる。nix はローカルと CI の両方で Determinate Nix を使う
-(CI は nix を入れる共有の composite が入れる)。devShell を Bash の PATH へ載せる `.envrc` の型と、
-`command not found` や guard に止められたときの対処は resolving-path skill が持つ。
+(CI は nix を入れる action が入れる)。devShell を Bash の PATH へ載せる `.envrc` の型、
+`command not found` のときの対処、推奨しない呼び出しの形は toolchain:resolving-path skill が持つ。
 
 Go を使うリポジトリは [references/go.md](references/go.md) も読む。devShell の go の置き方、
 nixpkgs に無い Go 製ツールの足し方、Go のセキュリティ修正の取り込み方はそちらにある。
@@ -31,25 +31,24 @@ nixpkgs に無い Go 製ツールの足し方、Go のセキュリティ修正�
 ## git 管理下のファイルしか見えない
 
 flake は git tree を store へコピーして評価するので、untracked のファイルは無いものとして扱われる。
-`flake.nix` を書いたら `git add flake.nix` を先に打ち、`nix flake lock` → `git add flake.lock` → `nix develop` の
+`flake.nix` を書いたら `git add flake.nix` を先に実行し、`nix flake lock` → `git add flake.lock` → `nix develop` の
 順にする。worktree でも同じ。`Git tree '…' has uncommitted changes` の warning は無害で、staged / modified の内容が
 そのまま使われる。
 
 ## バージョンとハッシュを調べる
 
 - 実際に入るバージョンは devShell に入ってから `<tool> --version` で見る。`nix search nixpkgs` はレジストリの nixpkgs を
-  引くので `flake.lock` の rev とは別物で、attr 名 (`go_1_27` など) にも当たらない。worktree 隔離中は `eval` の語を
-  含むコマンドを guard が拒否するので、`nix eval` も使えない。
-- `fetchFromGitHub` の `hash` や `vendorHash` は `pkgs.lib.fakeHash` を置いて `nix develop --command true` を打ち、
+  引くので `flake.lock` の rev とは別物で、attr 名 (`go_1_27` など) にも当たらない。
+- `fetchFromGitHub` の `hash` や `vendorHash` は `pkgs.lib.fakeHash` を置いて `nix develop --command true` を実行し、
   エラーの `got:` から読む。
 
 ## バージョンを上げる
 
 1. `nix flake update` (nixpkgs の rev が進む) か、`flake.nix` の `inputs.nixpkgs.url` を変える
 2. `git add flake.lock`
-3. `nix develop --command true` で store を温める (評価のキャッシュは resolving-path skill が扱う)
+3. `nix develop --command true` で store を温める (評価のキャッシュは toolchain:resolving-path skill が扱う)
 4. サブディレクトリへ `cd` して hook に再評価させ、ツールが新しい `/nix/store/` に解決するのを確かめる
-   (`.envrc` の反映は resolving-path skill に従う)
+   (`.envrc` の反映は toolchain:resolving-path skill に従う)
 5. 「バージョンが変わったときに確かめること」を通す
 
 ## バージョンが変わったときに確かめること
@@ -72,18 +71,13 @@ flake は git tree を store へコピーして評価するので、untracked �
 
 ## CI
 
-`actions/checkout` の後に、nix を入れる共有の composite (以下、共有の nix composite) を 1 回通す。
-`uses:` の行は、グローバル CLAUDE.md の「GitHub Actions の lockfile」節の写し元から写す。
-リポジトリに自前の composite (determinate-nix-action と nix-develop の組) があれば、共有の nix composite に置き換えて消す。
-
-個人リポジトリ以外では共有の nix composite を参照しない。個人のアカウント名が業務リポジトリのコードに残るため
-(github-ops:using-gh-actions-lock skill と同じ規則)。
-写し元の `uses:` の参照先にある `action.yml` と同じ step をそのリポジトリの composite に置き、ジョブからはそれを `uses:` で呼ぶ。
+`actions/checkout` の後に、nix (Determinate Nix) を入れて devShell を用意する action を 1 回通す。
+ジョブごとに同じ step を並べて書かず、1 つの composite にまとめてジョブからはそれを `uses:` で呼ぶ。
+足した action のバージョンの固定は、GitHub Actions の依存を lockfile で固定する手順の skill に従う。
 
 nix store の cache を使うかは計測して決め、数字を PR 本文に書く。
-判定の条件と nix-cache.yaml の置き方は、共有の nix composite の README (`uses:` の参照先) が持つ。
 
-共有の nix composite はジョブごとに約 40 秒かかり、課金もジョブごとに分単位で切り上がる。devShell を使う検証は、
+nix の導入と devShell の準備はジョブごとに数十秒かかり、課金もジョブごとに分単位で切り上がる。devShell を使う検証は、
 ジョブを分けて縮まる時間がこの分を上回らない限り 1 つのジョブにまとめる。
 
 ツールのバージョンの出所は `flake.lock` だけにする。devShell に入れたツールを CI が別経路で入れていたら、
@@ -91,8 +85,8 @@ nix store の cache を使うかは計測して決め、数字を PR 本文に�
 setup-go の `go-version:`、golangci-lint-action の `version:`。外したことで変わる CI の挙動 (action が付けていた PR の annotation や
 レビューコメント) は PR 本文に書く。次の経路も例外にしない。
 
-- リリース用の workflow (tagpr など) の setup-go や goreleaser-action (`version: "~> v2"`)。共有の nix composite で devShell を
-  入れて `goreleaser release --clean` を直接呼ぶ。リリース経路は PR の CI で確かめられないので、
+- リリース用の workflow (tagpr など) の setup-go や goreleaser-action (`version: "~> v2"`)。nix を入れる action で devShell を
+  用意して `goreleaser release --clean` を直接呼ぶ。リリース経路は PR の CI で確かめられないので、
   「バージョンが変わったときに確かめること」の CI が呼ばないツールとして devShell で確かめる。
 - reviewdog/action-yamllint のように、action が自前のツールを持つもの。ツールは devShell から呼ぶ。
 
@@ -108,7 +102,7 @@ CI で `npm install -g` するなら nodejs は devShell に入れずランナ�
 | ---- | ---- | ---- |
 | `does not provide attribute 'devShells.<system>.default'` (CI だけで出ることが多い) | その system を `systems` に入れていない | `systems` に足す |
 | `go: go.mod requires go >= …`、`hash mismatch in fixed-output derivation '…-go-modules.drv'` | Go のツールチェーンか依存の固定がずれている | [references/go.md](references/go.md) の「症状」 |
-| CI の共有の nix composite (普段は約 40 秒) が数分かかる | devShell の derivation が binary cache に無く、ジョブごとにソースからビルドしている (`overrideAttrs` で `src` や `version` を替えたツール) | nixpkgs のバージョンに戻すか、上流の配布バイナリを置く derivation に替える。go は [references/go.md](references/go.md) の「症状」 |
+| CI の nix の導入と devShell の準備 (普段は数十秒) が数分かかる | devShell の derivation が binary cache に無く、ジョブごとにソースからビルドしている (`overrideAttrs` で `src` や `version` を替えたツール) | nixpkgs のバージョンに戻すか、上流の配布バイナリを置く derivation に替える。go は [references/go.md](references/go.md) の「症状」 |
 | `path '/nix/store/…-source/<file>' does not exist` | そのファイルが untracked (「git 管理下のファイルしか見えない」) | `git add <file>` |
 | `sed: 1: "…": invalid command code` 等、macOS 版の構文が通らない | `mkShellNoCC` でも stdenv の `initialPath` (GNU の coreutils、findutils、gnused、gnugrep、gawk) が PATH の先頭に残り、リポジトリ内では `sed` `grep` `find` `stat` が GNU 版になる | スクリプトを両方で動く形にする (どちらの版かを実行時に判定して書き分ける) |
 
@@ -116,7 +110,7 @@ CI で `npm install -g` するなら nodejs は devShell に入れずランナ�
 
 1. `flake.nix` を書く (「flake.nix で決めること」、Go 製ツールは [references/go.md](references/go.md)) → `git add` → lock
    (「git 管理下のファイルしか見えない」)
-2. `.envrc` を `use flake` の型にし、aqua.yaml と policy を消す (resolving-path skill)。claude を起動したシェルに
-   aqua の環境が残っていると、反映前は aqua の shim が使われる (その切り分けも resolving-path skill が扱う)
-3. CI を共有の nix composite と devShell のツールの直呼びへ寄せる (「CI」)
+2. `.envrc` を `use flake` の型にし、aqua.yaml と policy を消す (toolchain:resolving-path skill)。claude を起動したシェルに
+   aqua の環境が残っていると、反映前は aqua の shim が使われる (その切り分けも toolchain:resolving-path skill が扱う)
+3. CI を nix を入れる action と devShell のツールの直呼びへ寄せる (「CI」)
 4. バージョンが変わったツールと CI が呼ばないツールを devShell で実行する (「バージョンが変わったときに確かめること」)

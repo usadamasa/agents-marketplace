@@ -41,7 +41,7 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 | `go-arch-metrics` | [usadamasa/go-arch-metrics](https://github.com/usadamasa/go-arch-metrics) | Go のアーキテクチャメトリクスの測定と改善 |
 | `dev-workflow` | [plugins/dev-workflow](plugins/dev-workflow) | TDD、デバッグ、完了前の検証、コードレビュー、ブランチの仕上げ、subagent への委譲 |
 | `shellscript` | [plugins/shellscript](plugins/shellscript) | bash スクリプトの書き方と bats-core でのテスト |
-| `toolchain` | [plugins/toolchain](plugins/toolchain) | 開発ツールの置き場所 (Nix devShell、home-manager)、PATH と direnv |
+| `toolchain` | [plugins/toolchain](plugins/toolchain) | 開発ツールの置き場所 (Nix devShell、home-manager)、PATH と direnv、`.envrc` を Bash へ反映する hook |
 | `github-ops` | [plugins/github-ops](plugins/github-ops) | GitHub の issue・Actions CI とリポジトリ操作 |
 | `harness` | [plugins/harness](plugins/harness) | Claude Code ハーネス自体の運用 (skill の書き方、permission、sandbox、token の使い方) |
 | `visuals` | [plugins/visuals](plugins/visuals) | 図・画像・PDF とその見せ方 |

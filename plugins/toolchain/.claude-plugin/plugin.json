@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "toolchain",
-  "version": "2026.1115.0",
-  "description": "Skills for placing development tools: Nix devShell, home-manager, PATH and direnv",
+  "version": "2026.1128.0",
+  "description": "Skills and a direnv hook for placing development tools: Nix devShell, home-manager, PATH and direnv",
   "author": {
     "name": "usadamasa"
   },
