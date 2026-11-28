@@ -3,7 +3,7 @@ name: labeling-github-issues
 description: >-
   自分の GitHub リポジトリで issue と PR にラベル (種類、機能の area、優先度、epic) を付ける・付け直すとき、
   リポジトリにラベル運用を新しく入れるとき、release note の分類がおかしいときに使う。
-  起票先の判断は github-ops:filing-issues、Project の Priority と運用は github-ops:managing-github-projects の担当。
+  起票先の判断は github-ops:filing-issues の担当。
 ---
 
 # labeling-github-issues
@@ -21,9 +21,6 @@ issue と PR を次の軸のラベルで分け、PR のラベルから release n
 
 適用するのは利用者が自分で運用するリポジトリに限る。
 業務や organization のリポジトリには当てはめず、その repo の決めごとに従う。
-
-`priority:` ラベルは repo の中での着手の順で、GitHub Project の Priority (P0/P1/P2) は repo をまたいだ選定に使う。
-別物なので、片方からもう片方を埋めない。
 
 ## repo 固有の決めごとを読む
 
@@ -124,16 +121,19 @@ area の表は「area」と「含むもの」の列で作り、案を利用者�
 ### 2. ラベルを宣言する
 
 ラベルを作る経路は 1 つにする。利用者がラベルを宣言的に管理するツール (リポジトリ設定を YAML で配るものなど) を
-使っているなら、そこに宣言して apply する。使っていなければ `gh label create` で作る。
-どちらを使うかは、利用者のグローバル CLAUDE.md (`~/.claude/CLAUDE.md`) へ書いたものに従う。
+使っているかは、利用者のグローバル CLAUDE.md (`~/.claude/CLAUDE.md`) へ書いたものに従う。
 
 ```markdown
 ## GitHub のラベル
 
-- 宣言の置き場: `<owner>/<repo>` の `<path>` (`gh label create` で作るなら「なし」)
+- 宣言的に管理: する (`gh label create` で作るなら「しない」)
 ```
 
 書いていなければ利用者に確かめ、CLAUDE.md に書くかを聞く。
+
+- 「しない」なら `gh label create` で作る
+- 「する」なら `gh label create` で作らない。足すラベルの名前・色・description を示し、
+  宣言を持つリポジトリで直して apply するよう利用者に案内する
 
 どちらの経路でも、ラベルの置き分けと見た目は次のようにそろえる。
 

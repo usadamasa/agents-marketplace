@@ -42,7 +42,7 @@ settings.json で宣言する場合は `extraKnownMarketplaces` と `enabledPlug
 | `dev-workflow` | [plugins/dev-workflow](plugins/dev-workflow) | TDD、デバッグ、完了前の検証、コードレビュー、ブランチの仕上げ、subagent への委譲 |
 | `shellscript` | [plugins/shellscript](plugins/shellscript) | bash スクリプトの書き方と bats-core でのテスト |
 | `toolchain` | [plugins/toolchain](plugins/toolchain) | 開発ツールの置き場所 (Nix devShell、home-manager)、PATH と direnv |
-| `github-ops` | [plugins/github-ops](plugins/github-ops) | GitHub の issue・Project・Actions CI とリポジトリ操作 |
+| `github-ops` | [plugins/github-ops](plugins/github-ops) | GitHub の issue・Actions CI とリポジトリ操作 |
 | `harness` | [plugins/harness](plugins/harness) | Claude Code ハーネス自体の運用 (skill の書き方、permission、sandbox、token の使い方) |
 | `visuals` | [plugins/visuals](plugins/visuals) | 図・画像・PDF とその見せ方 |
 | `leadership` | [plugins/leadership](plugins/leadership) | 組織の壁を越えるリーダーシップの実践 |

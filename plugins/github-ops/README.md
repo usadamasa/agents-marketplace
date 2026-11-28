@@ -1,6 +1,6 @@
 # github-ops
 
-GitHub の issue・Project・Actions CI と、ローカルのリポジトリ操作の skill をまとめた plugin。
+GitHub の issue・Actions CI と、ローカルのリポジトリ操作の skill をまとめた plugin。
 リポジトリの追従 (repo-sync skill) は同梱の Go の CLI `repo-scan` が行う。
 repo-scan は SessionStart hook が `${CLAUDE_PLUGIN_DATA}/bin/repo-scan` へビルドする (Go が要る)。
 
