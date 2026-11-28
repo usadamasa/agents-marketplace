@@ -1,0 +1,7 @@
+# validate.yml の changes ジョブが読む。
+# shared が変わったら、go-test と bats-test は対象の plugin を全て回す
+shared:
+  - '.github/**'
+  - 'scripts/**'
+plugins:
+  - 'plugins/**'
