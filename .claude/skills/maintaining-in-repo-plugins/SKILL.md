@@ -44,6 +44,16 @@ skill の本文・references・scripts・`plugin.json` の description のどれ
 4. 名前が他の marketplace の plugin と重ならないか確かめる (`github` は公式 marketplace に同名がある)。
    同名の plugin を両方有効にすると、skill の `<plugin>:` 名前空間がぶつかる。
 
+## plugin を消すとき
+
+1. `plugins/<name>/` をディレクトリごと消す。
+2. `.claude-plugin/marketplace.json` の `plugins` からその項目を消す。
+3. README の「plugin 一覧」の表からその行を消す。
+4. ほかに plugin 名を名指す所を `rg -n --hidden -g '!.git' -w '<name>'` で探して消す。
+   workflow の分岐は直さなくてよい (対象の決め方は `validate.yml` の `changes` ジョブのコメントにある)。
+   workflow のコメントやほかの plugin の skill に残った名指しも、この検索で拾う。
+5. PR 本文に、install していた利用者がマージ後に実行する `claude plugin uninstall <name>@usadamasa` を書く。
+
 ## 検査
 
 PR を出す前に両方を通す。

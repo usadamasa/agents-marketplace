@@ -5,8 +5,10 @@
 cleanshot-capture は SessionStart hook が `${CLAUDE_PLUGIN_DATA}/bin/cleanshot-capture` へビルドする (Go が要る)。
 撮影には macOS と CleanShot X が要る。
 
-```text
-/plugin install visuals --marketplace usadamasa/agents-marketplace
+marketplace を[リポジトリの README の「使い方」](../../README.md#使い方)のとおりに登録してから、次のコマンドで install する。
+
+```sh
+claude plugin install visuals@usadamasa
 ```
 
 ## 利用者の設定
