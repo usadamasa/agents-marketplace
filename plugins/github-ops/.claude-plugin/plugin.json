@@ -1,11 +1,38 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "github-ops",
-  "version": "2026.1128.2",
+  "version": "2026.1128.3",
   "description": "Skills for GitHub issues, Actions CI and local repository operations",
   "author": {
     "name": "usadamasa"
   },
   "repository": "https://github.com/usadamasa/agents-marketplace",
-  "license": "MIT"
+  "license": "MIT",
+  "userConfig": {
+    "cross_repo": {
+      "type": "string",
+      "title": "横断のリポジトリ",
+      "description": "複数のリポジトリをまたぐ作業の issue を置くリポジトリ (<owner>/<repo>)。filing-issues skill が読む"
+    },
+    "harness_repo": {
+      "type": "string",
+      "title": "ハーネス設定のリポジトリ",
+      "description": "~/.claude/ へ配る CLAUDE.md・skill・hook・settings.json を git 管理するリポジトリ (<owner>/<repo>)。filing-issues skill が読む"
+    },
+    "labels_declarative": {
+      "type": "boolean",
+      "title": "ラベルを宣言的に管理する",
+      "description": "ラベルを gh label create ではなく、宣言的に管理するツールで作るか。labeling-github-issues skill が読む"
+    },
+    "shared_ci_owner": {
+      "type": "string",
+      "title": "共有の CI 部品を探す owner",
+      "description": "共有の CI 部品 (PR のラベル同期など) の写し元を gh repo list で探すときの owner。labeling-github-issues skill が読む"
+    },
+    "shared_ci_topic": {
+      "type": "string",
+      "title": "共有の CI 部品を探す topic",
+      "description": "共有の CI 部品の写し元を gh repo list --topic で絞る topic。labeling-github-issues skill が読む"
+    }
+  }
 }
