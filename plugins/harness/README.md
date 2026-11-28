@@ -52,7 +52,10 @@ allowed_home_directories:
 
 - 値はホームからの相対パス。cwd と `~/.claude` は書かなくても許す
 - 次の値が 1 つでもあると、YAML 全体を読めないものとして扱う: `/` か `~` で始まる値・`..` を含む値・空の値・
-  ホームそのものを指す値 (`.`)。知らないキーと、一覧でない値も同じ
+  ホームそのものを指す値 (`.`)。`allowed_home_directories` が無いとき、知らないキー、一覧でない値も同じ
+- 規則は [JSON Schema](schemas/guard-home-dir.schema.json) にもある。YAML の先頭に
+  `# yaml-language-server: $schema=https://raw.githubusercontent.com/usadamasa/agents-marketplace/main/plugins/harness/schemas/guard-home-dir.schema.json`
+  を書くと、対応するエディタが書いた時点で検査する
 - YAML が無い・読めないときは、cwd と `~/.claude` だけを許す。deny の文言が YAML の置き場と書き方を示す
 - YAML はユーザーが手で編集する。YAML のあるディレクトリへの Write・Edit・NotebookEdit は、YAML の中身によらず deny する
 

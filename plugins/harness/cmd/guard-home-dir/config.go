@@ -58,21 +58,25 @@ func loadConfig(home string, getenv func(string) string) homeConfig {
 		return invalid(cfg, err)
 	}
 
+	// 規則は同梱の schemas/guard-home-dir.schema.json と揃える (schema_test.go が突き合わせる)。
 	var raw struct {
-		AllowedHomeDirectories []string `yaml:"allowed_home_directories"`
+		AllowedHomeDirectories *[]string `yaml:"allowed_home_directories"`
 	}
 	dec := yaml.NewDecoder(bytes.NewReader(data))
 	dec.KnownFields(true)
 	if err := dec.Decode(&raw); err != nil {
 		return invalid(cfg, err)
 	}
-	for _, d := range raw.AllowedHomeDirectories {
+	if raw.AllowedHomeDirectories == nil {
+		return invalid(cfg, errors.New("allowed_home_directories の一覧が無い"))
+	}
+	for _, d := range *raw.AllowedHomeDirectories {
 		if err := validateDir(d); err != nil {
 			return invalid(cfg, err)
 		}
 	}
 	cfg.state = configOK
-	cfg.dirs = raw.AllowedHomeDirectories
+	cfg.dirs = *raw.AllowedHomeDirectories
 	return cfg
 }
 
