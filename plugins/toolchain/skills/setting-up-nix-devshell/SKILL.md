@@ -9,7 +9,7 @@ description: >-
 
 開発ツールはリポジトリの `flake.nix` の devShell に並べ、`flake.lock` が nixpkgs の rev を固定する。
 ツール単位のバージョンはその rev が持つバージョンになる。nix はローカルと CI の両方で Determinate Nix を使う
-(CI は nix を入れる action が入れる)。devShell を Bash の PATH へ載せる `.envrc` の型、
+(CI でも action で Determinate Nix を入れる)。devShell を Bash の PATH へ載せる `.envrc` の型、
 `command not found` のときの対処、推奨しない呼び出しの形は toolchain:resolving-path skill が持つ。
 
 Go を使うリポジトリは [references/go.md](references/go.md) も読む。devShell の go の置き方、
@@ -112,5 +112,5 @@ CI で `npm install -g` するなら nodejs は devShell に入れずランナ�
    (「git 管理下のファイルしか見えない」)
 2. `.envrc` を `use flake` の型にし、aqua.yaml と policy を消す (toolchain:resolving-path skill)。claude を起動したシェルに
    aqua の環境が残っていると、反映前は aqua の shim が使われる (その切り分けも toolchain:resolving-path skill が扱う)
-3. CI を nix を入れる action と devShell のツールの直呼びへ寄せる (「CI」)
+3. CI の構成を、nix を入れる action と devShell のツールの直呼びへ寄せる (「CI」)
 4. バージョンが変わったツールと CI が呼ばないツールを devShell で実行する (「バージョンが変わったときに確かめること」)

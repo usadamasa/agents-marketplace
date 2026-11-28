@@ -95,4 +95,4 @@ fi
 | Taskfile 経由でない直接呼び出し (スクリプト) | スクリプト自身が冒頭で `export AQUA_POLICY_CONFIG="$(cd "$(dirname "$0")/.." && pwd)/aqua/policy.yaml"` のように自分の位置から組み立てる。呼び出し側の前置きは Claude Code の Bash では使わない (SKILL.md「推奨しない形」) |
 | Claude Code の Bash | SessionStart / CwdChanged の direnv hook が `.envrc` を反映する (SKILL.md「仕組み」) |
 
-`aquaproj/aqua-installer` の action は major だけの浮動タグを付けないので、patch まで書く。
+`aquaproj/aqua-installer` の action は major だけの浮動タグを公開していないので、patch まで書く。

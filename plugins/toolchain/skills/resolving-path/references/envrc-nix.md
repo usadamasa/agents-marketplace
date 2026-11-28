@@ -11,8 +11,8 @@ nix_direnv_disallow_fallback
 use flake || exit 1
 ```
 
-- `use flake` は nix-direnv が提供する。direnv の stdlib には無いので、`~/.config/direnv/direnvrc` が nix-direnv の
-  direnvrc を `source` している端末でだけ動く (端末側の配線)。
+- `use flake` は nix-direnv が提供し、direnv の stdlib には無い。
+  `~/.config/direnv/direnvrc` が nix-direnv の direnvrc を `source` している端末でだけ動く。
 - `nix_direnv_disallow_fallback` を置かないと、`flake.nix` の書き損じや lock 更新直後のオフラインで評価に失敗したとき、
   nix-direnv は前回の devShell を warning 付きで使い続ける。direnv hook は stderr の warning を拾えないので、
   古いバージョンのツールが黙って動くことになる。
@@ -33,9 +33,9 @@ nix-direnv は `use flake` の評価結果を `.direnv/` に置き、`.envrc`、
 | cache 無効 (watch 対象が変わった)、nix store は warm | nix が daemon に繋いで評価する。数秒。direnv hook の timeout (15 秒) に収まる |
 | cold (store に無いパッケージがある。初回、`nix flake update` の直後) | cache.nixos.org からの取得で 1 分を超えうる。hook は timeout して何も書かない |
 
-cold は端末か Claude Code の Bash で先に `nix develop --command true` を前置きなしで実行して store を温める。
+cold のときは、端末か Claude Code の Bash で先に `nix develop --command true` を前置きなしで実行して store を温める。
 Claude Code を sandbox で動かしているなら、`nix` を `excludedCommands` に入れて sandbox の外で動かす
-(sandbox 内の nix は daemon に繋げない)。その後サブディレクトリへ `cd` し直せば hook が収まる。
+(sandbox 内の nix は daemon に繋げない)。その後サブディレクトリへ `cd` し直せば、hook の評価が timeout (15 秒) に収まる。
 温めるのは nix store だけで、nix-direnv の cache (`.direnv/`) は作らない。worktree の初回は `.direnv/` が無いので、
 温めた後も `cd` の後の評価に数秒かかり、その間の Bash 呼び出しは古い env で動く
 (SKILL.md「`.envrc` を反映させる」の 4 で待つ)。direnv の `warn_timeout` (5 秒) は警告を出すだけで評価を打ち切らない。
@@ -56,7 +56,7 @@ Claude Code を sandbox で動かしているなら、`nix` を `excludedCommand
 
 | 症状 | 原因 | 対処 |
 | ---- | ---- | ---- |
-| `cannot connect to socket at '/nix/var/nix/daemon-socket/socket': Operation not permitted` | nix が sandbox 内で動いた。`nix …` の形が excludedCommands の照合から外れた (パイプ、`$(…)`、他コマンドとの連結)、または sandbox 内の `direnv export bash` が cache 無効で nix を呼んだ | `nix` は前置きやパイプを付けずに実行する。`.envrc` の反映は hook に任せる (SKILL.md「`.envrc` を反映させる」) |
+| `cannot connect to socket at '/nix/var/nix/daemon-socket/socket': Operation not permitted` | nix が sandbox 内で動いた。`nix …` の形が `excludedCommands` の照合から外れた (パイプ、`$(…)`、他コマンドとの連結)、または sandbox 内の `direnv export bash` が cache 無効で nix を呼んだ | `nix` は前置きやパイプを付けずに実行する。`.envrc` の反映は hook に任せる (SKILL.md「`.envrc` を反映させる」) |
 | `nix-direnv: Evaluating current devShell failed. Falling back to previous environment!` | `.envrc` に `nix_direnv_disallow_fallback` が無く、前回の devShell が使われている | 直前の nix のエラーを読む。`.envrc` を上の型にする |
 | `direnv: error exit status 1` (`using flake` の後) | `use flake` が失敗して `\|\| exit 1` が効いた | その上に出ている nix のエラーを読んで直す |
 | `warning: unknown setting 'eval-cores'` / `'lazy-trees'` | PATH に nix が無く、nix-direnv が同梱の上流 nix で評価した (Determinate Nix の設定を知らない) | 動くが、シェルの設定 (`.zshenv` など) で PATH を直す。`.envrc` では直さない |
