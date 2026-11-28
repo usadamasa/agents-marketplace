@@ -17,6 +17,49 @@ permissions:
   contents: read
 
 jobs:
+  # go-test と bats-test の対象の plugin を、変わったパスから決める。
+  # plugin を CI に載せるには plugins/<name>/go.mod か plugins/<name>/tests/ を置く (この workflow の変更は要らない)
+  changes:
+    runs-on: ubuntu-slim
+    outputs:
+      go-plugins: ${{ steps.targets.outputs.go-plugins }}
+      bats-plugins: ${{ steps.targets.outputs.bats-plugins }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dorny/paths-filter@v4.0.3
+        id: filter
+        with:
+          filters: .github/filters.yaml
+          list-files: json
+      - id: targets
+        env:
+          SHARED: ${{ steps.filter.outputs.shared }}
+          PLUGIN_FILES: ${{ steps.filter.outputs.plugins_files }}
+        run: |
+          set -euo pipefail
+          # 引数のパス (plugins/<name>/...) から plugin 名を取り出し、JSON の配列で返す
+          plugin_names() {
+            local path
+            for path in "$@"; do
+              [ -e "$path" ] || continue
+              path=${path#plugins/}
+              printf '%s\n' "${path%%/*}"
+            done | jq -Rnc '[inputs] | unique'
+          }
+          go_all=$(plugin_names plugins/*/go.mod)
+          bats_all=$(plugin_names plugins/*/tests)
+          # filter の出力が欠けたときも全ての plugin を回す側に倒す
+          if [ "$SHARED" != "false" ] || [ -z "$PLUGIN_FILES" ]; then
+            changed=$(jq -nc --argjson go "$go_all" --argjson bats "$bats_all" '$go + $bats | unique')
+          else
+            changed=$(jq -c '[.[] | split("/")[1]] | unique' <<<"$PLUGIN_FILES")
+          fi
+          go=$(jq -nc --argjson all "$go_all" --argjson changed "$changed" '$all - ($all - $changed)')
+          bats=$(jq -nc --argjson all "$bats_all" --argjson changed "$changed" '$all - ($all - $changed)')
+          printf 'go-plugins=%s\nbats-plugins=%s\n' "$go" "$bats" | tee -a "$GITHUB_OUTPUT"
+
   validate:
     runs-on: ubuntu-latest
     env:
@@ -45,13 +88,14 @@ jobs:
 
   # plugin に同梱した Go の CLI (github-ops の repo-scan、visuals の cleanshot-capture) とビルドの script のテスト
   go-test:
+    needs:
+      - changes
+    if: needs.changes.outputs.go-plugins != '[]'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        plugin:
-          - github-ops
-          - visuals
+        plugin: ${{ fromJSON(needs.changes.outputs.go-plugins) }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -66,7 +110,14 @@ jobs:
   # visuals の show-image.sh は rex の block で macOS の /bin/bash (3.2) が動かす。
   # bash 4 以降の機能の混入を拾えるよう、macOS の runner で回す
   bats-test:
+    needs:
+      - changes
+    if: needs.changes.outputs.bats-plugins != '[]'
     runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: ${{ fromJSON(needs.changes.outputs.bats-plugins) }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -74,13 +125,14 @@ jobs:
       # bats 本体は PATH の bash で動く。/bin/bash (3.2) のままだと日本語のテスト名を解決できないので、
       # Homebrew の bash を入れる。show-image.sh はテストの中で /bin/bash を明示して動かす
       - run: brew install bash bats-core
-      - run: bats plugins/visuals/tests
+      - run: bats "plugins/${{ matrix.plugin }}/tests"
 
   # Branch Ruleset の required status check にはこのジョブだけを登録する
   ci-status-check:
     needs:
       - actions-lock
       - bats-test
+      - changes
       - go-test
       - validate
     if: always()
