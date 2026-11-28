@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/usadamasa/agents-config/internal/pathutil"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/pathutil"
 )
 
 const openBin = "/usr/bin/open"
@@ -131,8 +131,7 @@ func uniqueName(dir, name string) string {
 // ensureWithin は出力先が作業ディレクトリ配下に収まることを確かめ、絶対パスを返す｡
 //
 // このコマンドは sandbox.excludedCommands 経由で sandbox の外で動く｡OS 側の保護は
-// 効かず、guard-home-dir はスキャン系コマンド (find / du / tree / ls -R) しか見ないため、
-// --out の行き先を縛るのはここだけになる｡
+// 効かないため、--out の行き先を縛るのはここだけになる｡
 //
 // symlink 経由の脱出を防ぐため、実在する最も深い祖先を解決してから判定する｡
 // 出力先そのものはまだ存在しないのが普通なので、パス全体は解決できない｡

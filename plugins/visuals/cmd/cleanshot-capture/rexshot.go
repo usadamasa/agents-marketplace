@@ -8,8 +8,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/imgfmt"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/rexshot"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/imgfmt"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/rexshot"
 )
 
 func newRexCmd() *cobra.Command {

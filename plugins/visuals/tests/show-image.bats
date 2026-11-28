@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
-# dotclaude/skills/showing-images-in-rex/show-image.sh のテスト。
+# skills/showing-images-in-rex/show-image.sh のテスト。
 # kitty graphics の APC の並び (最初だけ a=T,f=100、最後だけ m=0) と、chunk を繋ぐと元の base64 に戻ることを見る。
 # skill は /bin/bash で起動する (rex の block は devShell の外)。macOS では bash 3.2 なので、テストも同じ bash で
 # 走らせて 4 以降の機能の混入を拾う。Linux の /bin/bash は 5 系なので、この検査が効くのは macOS だけ。
 
-SCRIPT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/dotclaude/skills/showing-images-in-rex/show-image.sh"
+SCRIPT="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/skills/showing-images-in-rex/show-image.sh"
 SYSTEM_BASH=/bin/bash
 
 setup() {

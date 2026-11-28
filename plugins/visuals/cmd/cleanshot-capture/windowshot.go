@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/displaypower"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/imgfmt"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/macwin"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/displaypower"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/imgfmt"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/macwin"
 )
 
 // screencaptureBin は macOS 標準のキャプチャコマンド｡PATH 探索を避けて絶対パスで起動する｡

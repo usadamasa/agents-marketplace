@@ -22,7 +22,7 @@ func TestFilterWindows(t *testing.T) {
 
 func TestMatchWindows(t *testing.T) {
 	candidates := []Window{
-		{Owner: "Code", Title: "main.go — agents-config", Number: 1},
+		{Owner: "Code", Title: "main.go — sample-repo", Number: 1},
 		{Owner: "Visual Studio Code", Title: "README", Number: 2},
 		{Owner: "Finder", Title: "src", Number: 3},
 		{Owner: "Finder", Title: "Downloads", Number: 4},
@@ -38,7 +38,7 @@ func TestMatchWindows(t *testing.T) {
 		{name: "完全一致が無ければ部分一致", app: "Visual", want: []int{2}},
 		{name: "大文字小文字を無視", app: "finder", want: []int{3, 4}},
 		{name: "タイトルの部分一致で絞る", app: "Finder", title: "down", want: []int{4}},
-		{name: "タイトル単独でも絞れる", title: "agents-config", want: []int{1}},
+		{name: "タイトル単独でも絞れる", title: "sample-repo", want: []int{1}},
 		{name: "該当なし", app: "Safari", want: nil},
 	}
 	for _, tt := range tests {

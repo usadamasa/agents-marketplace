@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/imgfmt"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/macwin"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/imgfmt"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/macwin"
 )
 
 func TestScreencaptureArgs(t *testing.T) {
@@ -78,7 +78,7 @@ func TestDescribeScreencaptureFailure(t *testing.T) {
 	})
 
 	// ディスプレイがスリープしているとフレームバッファが無く、許可があってもウィンドウが
-	// 出ていても撮れない｡許可や描画を疑わせる案内はどちらも的外れになる (#305)｡
+	// 出ていても撮れない｡許可や描画を疑わせる案内はどちらも的外れになる｡
 	t.Run("ディスプレイがスリープ中ならそれだけを伝える", func(t *testing.T) {
 		for name, w := range map[string]macwin.Window{"名前あり": target, "名前なし": unnamed} {
 			got := describeScreencaptureFailure(w, "could not create image from window", true)

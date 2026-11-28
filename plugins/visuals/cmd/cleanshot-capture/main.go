@@ -10,17 +10,17 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/displaypower"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/imgfmt"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/macwin"
-	"github.com/usadamasa/agents-config/cleanshot-capture/internal/screenlock"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/displaypower"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/imgfmt"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/macwin"
+	"github.com/usadamasa/agents-marketplace/plugins/visuals/cmd/cleanshot-capture/internal/screenlock"
 )
 
 // wakeTimeout はディスプレイを起こしてから点灯を待つ上限｡実測では 1 秒以内に点く｡
 const wakeTimeout = 10 * time.Second
 
-// defaultOutDir は出力先の既定｡プロジェクト外の絶対パスは guard-home-dir が
-// deny するため、作業ディレクトリ配下の ./tmp に置く｡
+// defaultOutDir は出力先の既定｡--out は作業ディレクトリ配下しか受け付けないため、
+// 作業ディレクトリ配下の ./tmp に置く｡
 const defaultOutDir = "./tmp"
 
 // commonOpts は全サブコマンドで共通のフラグ｡
@@ -304,7 +304,7 @@ GIF と MP4 の切り替えは録画ツール UI の設定が引き継がれる�
 // ensureDisplayAwake はディスプレイがスリープしていれば起こし、点くまで待つ｡
 //
 // 全ての撮り方に共通｡消えている間はフレームバッファが無く、ウィンドウ ID で撮る
-// window でも "could not create image" になる (#305)｡ロックとは独立した状態で、
+// window でも "could not create image" になる｡ロックとは独立した状態で、
 // ロックの検査より先に行う (ロック中でも起こせるし、ロック画面が写る問題はそちらで止める)｡
 //
 // 起こすのはユーザーの操作があったと宣言するだけで、ロックを解除するわけではない｡
