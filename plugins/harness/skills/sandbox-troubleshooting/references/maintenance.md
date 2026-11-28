@@ -5,7 +5,7 @@ sandbox の挙動は Claude Code の更新で変わる。記述と挙動が食�
 ## 誰が更新するか
 
 食い違いに気づいたセッションは、進行中の作業を止めない。回避して先へ進み、skill の更新は別セッションか subagent に渡す。
-渡すときは、実行したコマンド、返ってきたエラー、食い違った記述の場所を添える。
+渡すときは、実行したコマンドと返ってきたエラー、食い違った記述の場所を添える。
 同じセッションで直すのは、食い違いが進行中の作業のブロッカーになっているときだけにする。
 
 ## 更新するとき
@@ -30,17 +30,21 @@ sandbox の内外で結果が分かれるコマンドをプローブにする。
 確かめたい形にプローブを組み込んで 1 回の Bash 呼び出しとして実行し、どちらの結果になるかを見る。
 guard が deny する形は実行まで届かない。その形を測るときは、guard の外し方をユーザーと決めてから進める。
 
-結果が変わったら、次の箇所を同じ変更で揃える。
+結果が変わったら、次の作業を同じ変更で行う。
 
-1. `references/excluded-command-shapes.md` の表と、SKILL.md の 5 条件
-2. harness plugin の `cmd/guard-bash/internal/rules/sandboxexcluded/sandboxexcluded.go` の `shapeBreak` / `callBreak` とテスト。
+1. `references/excluded-command-shapes.md` の表と、SKILL.md の 5 条件を直す
+2. harness plugin の `cmd/guard-bash/internal/rules/sandboxexcluded/sandboxexcluded.go` の
+   `shapeBreak` / `callBreak` とテストを直す。
    代わりの書き方の表 (`sandboxhint.go`) も、通らなくなった形を勧めていないか見る
 3. plugin のバージョンを上げて配る (hook が呼ぶのはビルドしたバイナリなので、更新したセッションの SessionStart が
    ビルドし直すまで、古い判定と文言のまま動く)
 
+## deny の文言を変えた効果を測る
+
 deny の文言や判定を変えた効果は、harness plugin の `scripts/sandboxexcluded-denies.sh` で比べる。
 transcript から照合外れの deny を拾い、週ごとに原因・コマンド名・実行し直した回数を出す。
-集計は deny の 1 文目の形に頼るので、1 文目を変えるときは `sandboxhint_test.go` の `metricPattern` と集計の jq も揃える。
+集計は deny の 1 文目の形に頼るので、1 文目を変えるときは、`sandboxhint_test.go` の `metricPattern` と
+集計の jq も揃える。
 
 ## 組込み deny を測り直す
 
@@ -53,7 +57,8 @@ transcript から照合外れの deny を拾い、週ごとに原因・コマン
 | 既存ファイルを書き込みで開けるか | `dd if=/dev/null of=<path> conv=notrunc` (中身を変えずに開く。`>>` は guard-bash が deny する) |
 | Edit / Write ツールで書けるか | Edit で空行を 1 つ足し、すぐ戻す |
 
-プローブで作った `./tmp/probe` は消し、`git status --short` で残骸が無いことを確かめる。
+プローブで作った `./tmp/probe` は消す。Edit のプローブを戻したことと、`./tmp` の外に残骸が無いことは
+`git status --short` で確かめる (`./tmp` が gitignore されていると、そこに残ったものは出ない)。
 結果は SKILL.md の Appendix に反映する。
 
 ## 書き方

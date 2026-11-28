@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "harness",
-  "version": "2026.1128.0",
-  "description": "Skills for operating the Claude Code harness itself: writing skills and auditing token usage",
+  "version": "2026.1128.1",
+  "description": "Skills and hooks for operating the Claude Code harness itself: writing skills, auditing token usage, PreToolUse guards for Bash and home-directory access, and sandbox troubleshooting",
   "author": {
     "name": "usadamasa"
   },
