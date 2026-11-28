@@ -174,8 +174,8 @@ area ごとの issue の検索と、廃止した機能の issue を拾うのに 
 
 ラベル同期の workflow は、PR の closing issue を引いてラベルを足すだけにし、PR に手で付けたラベルを消さない。
 fork と dependabot の PR は token に書き込み権限が無いので対象から外す。
-公開されている実装例に、gh-manage の reusable workflow がある。呼び出し側の雛形と、写すラベルを変える `copy-pattern` は
-[gh-manage の README の「PR のラベル同期」](https://github.com/usadamasa/gh-manage#pr-のラベル同期) にある。
+複数の repo で同じ workflow を使うなら、1 つの repo に reusable workflow として置き、各 repo からは `uses:` で呼ぶ。
+どの repo の workflow を呼ぶかと呼び出し側の雛形は、利用者の設定 (グローバル CLAUDE.md) から読む。
 `release.yml` は GitHub Release の自動生成 note が読む。tagpr を使う repo では Release PR の本文にも効く。
 
 ### 6. PR の決めごとを repo に書く
