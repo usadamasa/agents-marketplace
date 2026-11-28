@@ -1,0 +1,3 @@
+allowed_home_directories:
+  - src
+  - workspace

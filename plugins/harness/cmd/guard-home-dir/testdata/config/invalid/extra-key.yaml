@@ -1,0 +1,4 @@
+allowed_home_directories:
+  - src
+denied_home_directories:
+  - Downloads

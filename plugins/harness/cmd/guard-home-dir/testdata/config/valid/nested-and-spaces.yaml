@@ -1,0 +1,6 @@
+# コメントの行と、入れ子・空白・ドットで始まる置き場
+allowed_home_directories:
+  - .local/state
+  - Library/Application Support/Example
+  - go/pkg
+  - ./src
