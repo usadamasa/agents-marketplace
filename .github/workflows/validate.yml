@@ -86,7 +86,7 @@ jobs:
           persist-credentials: false
       - uses: usadamasa/gh-manage/actions/verify-actions-lock@main
 
-  # plugin に同梱した Go の CLI (github-ops の repo-scan、visuals の cleanshot-capture) とビルドの script のテスト
+  # plugin に同梱した Go の CLI (github-ops の repo-scan、visuals の cleanshot-capture、harness の analyze-tokens) とビルドの script のテスト
   go-test:
     needs:
       - changes
